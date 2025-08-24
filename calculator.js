@@ -107,7 +107,7 @@ class RentBuyCalculator {
         results.rentReals.push(previousRentReal);
         results.premiums.push(previousRentReal - previousBuyReal);
 
-        for (let year = 2; year <= 30; year++) {
+        for (let year = 2; year <= inputs.loanTerm + 10; year++) {
             // Column E: Loan (Excel formula: =max(0,E{row-1}+F{row-1}+$C$12))
             // Since C12 is negative, this is: max(0, previous_loan + previous_interest - yearly_payment)
             const loan = Math.max(0, previousLoan + previousInterest - yearlyPayment);

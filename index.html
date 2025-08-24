@@ -15,8 +15,9 @@
             <p>Compare the financial implications of renting vs buying a home</p>
         </header>
 
-        <div class="calculator-section">
-            <!-- Primary Inputs - Most Important -->
+        <div class="main-layout">
+            <div class="sidebar">
+                <!-- Primary Inputs - Most Important -->
             <div class="input-panel primary">
                 <h3><i class="fas fa-home"></i> Property Details</h3>
                 <div class="form-row">
@@ -38,9 +39,9 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="loanTerm">Loan Term</label>
-                        <div class="input-with-prefix">
-                            <span class="prefix">Yr</span>
+                        <div class="input-with-suffix">
                             <input type="number" id="loanTerm" value="30" min="15" max="40" step="5">
+                            <span class="suffix">Yr</span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -51,9 +52,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="calculated-field">
-                    <span class="calc-label">Loan Amount:</span>
-                    <span id="loanAmountDisplay" class="calc-value">$1,225,000</span>
+                <div class="calculated-fields-row">
+                    <div class="calculated-field">
+                        <span class="calc-label">Down Payment:</span>
+                        <span id="downPaymentDisplay" class="calc-value">$525,000</span>
+                    </div>
+                    <div class="calculated-field">
+                        <span class="calc-label">Loan Amount:</span>
+                        <span id="loanAmountDisplay" class="calc-value">$1,225,000</span>
+                    </div>
                 </div>
             </div>
 
@@ -138,9 +145,10 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Hidden inputs for backward compatibility -->
+            </div>
+            
+            <div class="main-content">
+                <!-- Hidden inputs for backward compatibility -->
         <input type="hidden" id="downPayment" value="525000">
         <input type="hidden" id="loanAmount" value="1225000">
         <input type="hidden" id="annualRent" value="54000">
@@ -155,7 +163,7 @@
                         <i class="fas fa-home"></i>
                     </div>
                     <div class="card-content">
-                        <h3>Buy Net Worth (30 Years)</h3>
+                        <h3>Buy Net Worth</h3>
                         <p id="buyTotalCost">$0</p>
                     </div>
                 </div>
@@ -164,7 +172,7 @@
                         <i class="fas fa-key"></i>
                     </div>
                     <div class="card-content">
-                        <h3>Rent Net Worth (30 Years)</h3>
+                        <h3>Rent Net Worth</h3>
                         <p id="rentTotalCost">$0</p>
                     </div>
                 </div>
@@ -199,28 +207,11 @@
                         <canvas id="monthlyLineChart"></canvas>
                     </div>
                 </div>
-                <div class="charts-right">
-                    <div class="chart-container">
-                        <div class="chart-header">
-                            <h3>Monthly Cost Breakdown</h3>
-                            <div class="chart-controls">
-                                <div class="cost-type-toggle">
-                                    <button id="buyToggle" class="toggle-btn active">Buy Costs</button>
-                                    <button id="rentToggle" class="toggle-btn">Rent Costs</button>
-                                </div>
-                                <div class="year-slider-container">
-                                    <label for="yearSlider">Year: <span id="yearDisplay">1</span></label>
-                                    <input type="range" id="yearSlider" min="1" max="30" value="1" class="year-slider">
-                                </div>
-                            </div>
-                        </div>
-                        <canvas id="monthlyBreakdownChart"></canvas>
-                    </div>
-                </div>
+
             </div>
 
             <div class="detailed-breakdown">
-                <h3>Detailed 30-Year Breakdown</h3>
+                <h3>Detailed Yearly Breakdown</h3>
                 <div class="breakdown-table">
                     <table id="breakdownTable">
                         <thead>
@@ -237,6 +228,8 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
             </div>
         </div>
     </div>

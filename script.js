@@ -4,7 +4,6 @@ class RentBuyUI {
         this.calculator = new RentBuyCalculator();
         this.initializeElements();
         this.setupCustomSpinners();
-        this.setupNumberFormatting();
         this.setupEventListeners();
         this.loadSavedValues();
         this.updateCalculatedFields();
@@ -16,6 +15,7 @@ class RentBuyUI {
         this.homePrice = document.getElementById('homePrice');
         this.downPaymentPercent = document.getElementById('downPaymentPercent');
         this.loanAmountDisplay = document.getElementById('loanAmountDisplay');
+        this.downPaymentDisplay = document.getElementById('downPaymentDisplay');
         this.loanTerm = document.getElementById('loanTerm');
         this.mortgageRate = document.getElementById('mortgageRate');
         this.mortgagePoints = document.getElementById('mortgagePoints');
@@ -46,17 +46,14 @@ class RentBuyUI {
         // Charts
         this.costComparisonChart = null;
         this.monthlyLineChart = null;
-        this.monthlyBreakdownChart = null;
+
         this.breakdownTableBody = document.getElementById('breakdownTableBody');
         
-        // Year slider for monthly costs
-        this.yearSlider = document.getElementById('yearSlider');
-        this.yearDisplay = document.getElementById('yearDisplay');
-        
-        // Cost type toggle buttons
-        this.buyToggle = document.getElementById('buyToggle');
-        this.rentToggle = document.getElementById('rentToggle');
-        this.showBuyCosts = true; // Default to buy costs
+        // Chart elements (removed monthly breakdown chart)
+        // this.yearSlider = document.getElementById('yearSlider');
+        // this.yearDisplay = document.getElementById('yearDisplay');
+        // this.buyToggle = document.getElementById('buyToggle');
+        // this.rentToggle = document.getElementById('rentToggle');
         
         // Collapsible elements
         this.setupCollapsible();
@@ -69,23 +66,13 @@ class RentBuyUI {
             'mortgagePoints', 'monthlyRent', 'rentIncrease', 'propertyReassessment',
             'propertyTax', 'closingCosts', 'homeReturn', 'stockReturn', 'inflation'
         ];
-        
-        const currencyFields = ['homePrice', 'monthlyRent'];
 
         // Load saved values from localStorage
         inputFields.forEach(fieldName => {
             const savedValue = localStorage.getItem(`rentBuyCalc_${fieldName}`);
             const element = document.getElementById(fieldName);
-            if (savedValue && element) {
+            if (savedValue !== null && element) {
                 element.value = savedValue;
-                
-                // Format currency fields after loading from localStorage
-                if (currencyFields.includes(fieldName)) {
-                    const numValue = parseFloat(savedValue.replace(/,/g, ''));
-                    if (!isNaN(numValue) && numValue > 0) {
-                        element.value = this.formatNumber(numValue);
-                    }
-                }
             }
         });
     }
@@ -190,75 +177,36 @@ class RentBuyUI {
             finalUpBtn.addEventListener('click', () => {
                 const step = parseFloat(input.step) || 1;
                 const max = parseFloat(input.max);
-                const current = parseFloat(input.value) || 0;
+                const current = parseFloat(input.value.replace(/,/g, '')) || 0;
                 const newValue = current + step;
                 
                 if (!max || newValue <= max) {
-                    input.value = newValue;
+                    // Round to avoid floating point precision issues
+                    const decimalPlaces = (step.toString().split('.')[1] || '').length;
+                    input.value = parseFloat(newValue.toFixed(decimalPlaces));
                     input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             });
             
             finalDownBtn.addEventListener('click', () => {
                 const step = parseFloat(input.step) || 1;
                 const min = parseFloat(input.min);
-                const current = parseFloat(input.value) || 0;
+                const current = parseFloat(input.value.replace(/,/g, '')) || 0;
                 const newValue = current - step;
                 
                 if (!min || newValue >= min) {
-                    input.value = newValue;
+                    // Round to avoid floating point precision issues
+                    const decimalPlaces = (step.toString().split('.')[1] || '').length;
+                    input.value = parseFloat(newValue.toFixed(decimalPlaces));
                     input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             });
         });
     }
 
-    setupNumberFormatting() {
-        // Format currency inputs (Home Price, Monthly Rent)
-        const currencyInputs = ['homePrice', 'monthlyRent'];
-        
-        currencyInputs.forEach(fieldName => {
-            const input = document.getElementById(fieldName);
-            if (!input) return;
-            
-            // Format on blur (when user finishes editing)
-            input.addEventListener('blur', () => {
-                const value = parseFloat(input.value.replace(/,/g, ''));
-                if (!isNaN(value) && value > 0) {
-                    input.value = this.formatNumber(value);
-                }
-            });
-            
-            // Remove formatting on focus (for easier editing)
-            input.addEventListener('focus', () => {
-                const value = parseFloat(input.value.replace(/,/g, ''));
-                if (!isNaN(value) && value > 0) {
-                    input.value = value.toString();
-                }
-            });
-            
-            // Prevent formatting conflicts during manual input
-            input.addEventListener('input', (e) => {
-                // Only allow digits and basic editing
-                const cursorPos = e.target.selectionStart;
-                const rawValue = e.target.value.replace(/[^0-9]/g, '');
-                if (rawValue !== e.target.value.replace(/,/g, '')) {
-                    e.target.value = rawValue;
-                    e.target.setSelectionRange(cursorPos, cursorPos);
-                }
-            });
-            
-            // Format the initial value
-            const initialValue = parseFloat(input.value);
-            if (!isNaN(initialValue) && initialValue > 0) {
-                input.value = this.formatNumber(initialValue);
-            }
-        });
-    }
 
-    formatNumber(num) {
-        return new Intl.NumberFormat('en-US').format(num);
-    }
 
     setupCollapsible() {
         const collapsibleHeader = document.querySelector('.collapsible-header');
@@ -292,36 +240,19 @@ class RentBuyUI {
             this.calculate();
         });
 
-        // Year slider for monthly costs chart
-        if (this.yearSlider && this.yearDisplay) {
-            this.yearSlider.addEventListener('input', () => {
-                this.yearDisplay.textContent = this.yearSlider.value;
-                this.updateMonthlyBreakdownChart(this.lastResults);
-            });
-        }
+        // Removed: Year slider for monthly costs chart (chart was removed)
 
-        // Toggle buttons for buy/rent costs
-        if (this.buyToggle && this.rentToggle) {
-            this.buyToggle.addEventListener('click', () => {
-                this.showBuyCosts = true;
-                this.buyToggle.classList.add('active');
-                this.rentToggle.classList.remove('active');
-                this.updateMonthlyBreakdownChart(this.lastResults);
-            });
-
-            this.rentToggle.addEventListener('click', () => {
-                this.showBuyCosts = false;
-                this.rentToggle.classList.add('active');
-                this.buyToggle.classList.remove('active');
-                this.updateMonthlyBreakdownChart(this.lastResults);
-            });
-        }
+        // Removed: Toggle buttons for buy/rent costs (chart was removed)
 
         // Recalculate on any input change  
         const inputs = document.querySelectorAll('input:not([readonly]), select');
         inputs.forEach(input => {
             if (!input.hasAttribute('readonly')) {
                 input.addEventListener('input', () => {
+                    this.saveValues();
+                    this.calculate();
+                });
+                input.addEventListener('change', () => {
                     this.saveValues();
                     this.calculate();
                 });
@@ -394,7 +325,7 @@ class RentBuyUI {
     }
 
     updateDisplay(results) {
-        // Show the final year values (Year 30), not the sum
+        // Show the final year values (based on loan term), not the sum
         const finalYearIndex = results.years.length - 1;
         const finalBuyReal = results.buyReals[finalYearIndex] || 0;
         const finalRentReal = results.rentReals[finalYearIndex] || 0;
@@ -429,19 +360,10 @@ class RentBuyUI {
             this.costComparisonChart.destroy();
         }
 
-        // Filter to show only 5-year increments
-        const filteredYears = [];
-        const filteredBuyReals = [];
-        const filteredRentReals = [];
-        
-        for (let i = 0; i < results.years.length; i++) {
-            const year = results.years[i];
-            if (year % 5 === 0 || year === 1) {
-                filteredYears.push(year);
-                filteredBuyReals.push(results.buyReals[i]);
-                filteredRentReals.push(results.rentReals[i]);
-            }
-        }
+        // Use all data points
+        const filteredYears = results.years;
+        const filteredBuyReals = results.buyReals;
+        const filteredRentReals = results.rentReals;
 
         this.costComparisonChart = new Chart(ctx, {
             type: 'line',
@@ -453,14 +375,14 @@ class RentBuyUI {
                         data: filteredBuyReals,
                         borderColor: '#28a745',
                         backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                        tension: 0.4
+                        tension: 0
                     },
                     {
                         label: 'Rent (Real) - Inflation Adjusted',
                         data: filteredRentReals,
                         borderColor: '#007bff',
                         backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                        tension: 0.4
+                        tension: 0
                     }
                 ]
             },
@@ -493,28 +415,29 @@ class RentBuyUI {
             this.monthlyLineChart.destroy();
         }
 
-        // Calculate monthly costs for each year, filtering to 5-year increments
+        // Calculate monthly costs for each year, using all data points
         const inputs = this.getInputs();
         const monthlyMortgagePayment = this.calculator.calculateMonthlyPayment(inputs);
         
-        const filteredYears = [];
+        const filteredYears = results.years;
         const buyMonthlyCosts = [];
         const rentMonthlyCosts = [];
         
         for (let i = 0; i < results.years.length; i++) {
             const year = results.years[i];
-            if (year % 5 === 0 || year === 1) {
-                // Buy costs: mortgage + property tax/maintenance
-                const monthlyPropertyTax = (results.taxMaintenances[i] || 0) / 12;
-                const totalBuyCost = monthlyMortgagePayment + monthlyPropertyTax;
-                
-                // Rent costs
-                const monthlyRent = (results.rentExpenses[i] || 0) / 12;
-                
-                filteredYears.push(year);
-                buyMonthlyCosts.push(totalBuyCost);
-                rentMonthlyCosts.push(monthlyRent);
-            }
+            
+            // Buy costs: mortgage + property tax/maintenance
+            const monthlyPropertyTax = (results.taxMaintenances[i] || 0) / 12;
+            
+            // Mortgage payment stops after loan term
+            const mortgagePayment = year <= inputs.loanTerm ? monthlyMortgagePayment : 0;
+            const totalBuyCost = mortgagePayment + monthlyPropertyTax;
+            
+            // Rent costs
+            const monthlyRent = (results.rentExpenses[i] || 0) / 12;
+            
+            buyMonthlyCosts.push(totalBuyCost);
+            rentMonthlyCosts.push(monthlyRent);
         }
 
         this.monthlyLineChart = new Chart(ctx, {
@@ -527,14 +450,14 @@ class RentBuyUI {
                         data: buyMonthlyCosts,
                         borderColor: '#28a745',
                         backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                        tension: 0.4
+                        tension: 0
                     },
                     {
                         label: 'Rent Monthly Costs',
                         data: rentMonthlyCosts,
                         borderColor: '#17a2b8',
                         backgroundColor: 'rgba(23, 162, 184, 0.1)',
-                        tension: 0.4
+                        tension: 0
                     }
                 ]
             },
@@ -563,7 +486,8 @@ class RentBuyUI {
     updateMonthlyBreakdownChart(results) {
         if (!results) return;
         
-        const ctx = document.getElementById('monthlyBreakdownChart').getContext('2d');
+        // Chart element removed - skip this method
+        return;
         
         if (this.monthlyBreakdownChart) {
             this.monthlyBreakdownChart.destroy();
@@ -657,6 +581,11 @@ class RentBuyUI {
     }
 
     updateBreakdownTable(results) {
+        if (!this.breakdownTableBody) {
+            console.log('breakdownTableBody element not found');
+            return;
+        }
+        
         this.breakdownTableBody.innerHTML = '';
 
         for (let i = 0; i < results.years.length; i++) {

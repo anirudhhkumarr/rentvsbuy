@@ -51,21 +51,24 @@ const testCalculator = () => {
     console.log('Testing calculator with Excel parameters...');
     const results = calculator.calculateForTesting();
     
-    console.log('\nResults for first 5 years:');
-    for (let i = 0; i < 5; i++) {
-        console.log(`Year ${results.years[i]}:`);
-        console.log(`  Selling Price: $${results.sellingPrices[i].toFixed(2)}`);
-        console.log(`  Capital Gains: $${results.capitalGains[i].toFixed(2)}`);
-        console.log(`  Buy Real: $${results.buyReals[i].toFixed(2)}`);
-        console.log(`  Rent Value: $${results.rentValues[i].toFixed(2)}`);
-        console.log(`  Rent Real: $${results.rentReals[i].toFixed(2)}`);
-        console.log(`  Premium: $${results.premiums[i].toFixed(2)}`);
-        console.log('');
+    console.log('\nResults for key years:');
+    for (let i = 0; i < results.years.length; i++) {
+        const year = results.years[i];
+        // Show first 3 years, then every 5 years, then years around loan payoff, then final years
+        if (year <= 3 || year % 5 === 0 || year >= 28) {
+            console.log(`Year ${year}:`);
+            console.log(`  Home Value: $${results.homeValues[i].toLocaleString()}`);
+            console.log(`  Loan Balance: $${results.loans[i].toLocaleString()}`);
+            console.log(`  Buy Real: $${results.buyReals[i].toFixed(0)}`);
+            console.log(`  Rent Real: $${results.rentReals[i].toFixed(0)}`);
+            console.log('');
+        }
     }
     
     // Final comparison
 const finalYear = results.years.length - 1;
-console.log('\n=== FINAL COMPARISON (Year 30) ===');
+const actualFinalYear = results.years[finalYear];
+console.log(`\n=== FINAL COMPARISON (Year ${actualFinalYear}) ===`);
 console.log(`Buy Real (Final): $${results.buyReals[finalYear].toFixed(2)}`);
 console.log(`Rent Real (Final): $${results.rentReals[finalYear].toFixed(2)}`);
 console.log(`Difference (Rent - Buy): $${(results.rentReals[finalYear] - results.buyReals[finalYear]).toFixed(2)}`);
