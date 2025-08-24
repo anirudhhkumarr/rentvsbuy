@@ -130,7 +130,7 @@ header p {
 }
 
 .input-with-prefix input {
-    padding-left: 35px;
+    padding-left: 15px;
     border-radius: 0 8px 8px 0;
     border-left: none;
 }
@@ -140,7 +140,7 @@ header p {
     border: 2px solid #e1e5e9;
     border-right: none;
     border-radius: 8px 0 0 8px;
-    padding: 12px 15px;
+    padding: 12px 10px;
     color: #6c757d;
     font-weight: 600;
     font-size: 1rem;
@@ -148,7 +148,7 @@ header p {
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    min-width: 30px;
+    min-width: 25px;
     justify-content: center;
 }
 
@@ -205,10 +205,11 @@ header p {
     padding: 12px;
     border: 2px solid #e1e5e9;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     height: 46px;
     box-sizing: border-box;
     transition: border-color 0.3s ease;
+    min-width: 120px;
 }
 
 .form-group input:focus {
@@ -275,7 +276,7 @@ input[type="number"] {
 /* Adjust padding for prefix inputs with spinners */
 .input-with-prefix .input-spinner-wrapper input {
     padding-right: 40px !important;
-    padding-left: 35px !important;
+    padding-left: 15px !important;
 }
 
 .spinner-btn {

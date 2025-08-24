@@ -3,10 +3,10 @@ class RentBuyUI {
     constructor() {
         this.calculator = new RentBuyCalculator();
         this.initializeElements();
-        this.loadSavedValues();
         this.setupCustomSpinners();
         this.setupNumberFormatting();
         this.setupEventListeners();
+        this.loadSavedValues();
         this.updateCalculatedFields();
         this.calculate();
     }
@@ -69,6 +69,8 @@ class RentBuyUI {
             'mortgagePoints', 'monthlyRent', 'rentIncrease', 'propertyReassessment',
             'propertyTax', 'closingCosts', 'homeReturn', 'stockReturn', 'inflation'
         ];
+        
+        const currencyFields = ['homePrice', 'monthlyRent'];
 
         // Load saved values from localStorage
         inputFields.forEach(fieldName => {
@@ -76,6 +78,14 @@ class RentBuyUI {
             const element = document.getElementById(fieldName);
             if (savedValue && element) {
                 element.value = savedValue;
+                
+                // Format currency fields after loading from localStorage
+                if (currencyFields.includes(fieldName)) {
+                    const numValue = parseFloat(savedValue.replace(/,/g, ''));
+                    if (!isNaN(numValue) && numValue > 0) {
+                        element.value = this.formatNumber(numValue);
+                    }
+                }
             }
         });
     }
@@ -214,7 +224,7 @@ class RentBuyUI {
             // Format on blur (when user finishes editing)
             input.addEventListener('blur', () => {
                 const value = parseFloat(input.value.replace(/,/g, ''));
-                if (!isNaN(value)) {
+                if (!isNaN(value) && value > 0) {
                     input.value = this.formatNumber(value);
                 }
             });
@@ -222,14 +232,25 @@ class RentBuyUI {
             // Remove formatting on focus (for easier editing)
             input.addEventListener('focus', () => {
                 const value = parseFloat(input.value.replace(/,/g, ''));
-                if (!isNaN(value)) {
+                if (!isNaN(value) && value > 0) {
                     input.value = value.toString();
+                }
+            });
+            
+            // Prevent formatting conflicts during manual input
+            input.addEventListener('input', (e) => {
+                // Only allow digits and basic editing
+                const cursorPos = e.target.selectionStart;
+                const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                if (rawValue !== e.target.value.replace(/,/g, '')) {
+                    e.target.value = rawValue;
+                    e.target.setSelectionRange(cursorPos, cursorPos);
                 }
             });
             
             // Format the initial value
             const initialValue = parseFloat(input.value);
-            if (!isNaN(initialValue)) {
+            if (!isNaN(initialValue) && initialValue > 0) {
                 input.value = this.formatNumber(initialValue);
             }
         });
