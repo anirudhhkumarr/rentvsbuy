@@ -350,6 +350,7 @@ class RentBuyUI {
     updateCharts(results) {
         this.updateCostComparisonChart(results);
         this.updateMonthlyLineChart(results);
+        this.updateCumulativeCostChart(results);
         this.updateMonthlyBreakdownChart(results);
     }
 
@@ -396,12 +397,17 @@ class RentBuyUI {
                 },
                 scales: {
                     y: {
-                        beginAtZero: true,
+                        min: 0,
+                        max: 4000000, // Fixed at $4M max
                         ticks: {
                             callback: function(value) {
                                 return '$' + (value / 1000).toFixed(0) + 'K';
                             }
                         }
+                    },
+                    x: {
+                        min: 1,
+                        max: 40 // Fixed at 40 years max
                     }
                 }
             }
@@ -471,12 +477,102 @@ class RentBuyUI {
                 },
                 scales: {
                     y: {
-                        beginAtZero: true,
+                        min: 0,
+                        max: 30000, // Fixed at $30K/month max
                         ticks: {
                             callback: function(value) {
                                 return '$' + value.toLocaleString();
                             }
                         }
+                    },
+                    x: {
+                        min: 1,
+                        max: 40 // Fixed at 40 years max
+                    }
+                }
+            }
+        });
+    }
+
+    updateCumulativeCostChart(results) {
+        const ctx = document.getElementById('cumulativeCostChart').getContext('2d');
+        
+        if (this.cumulativeCostChart) {
+            this.cumulativeCostChart.destroy();
+        }
+
+        // Calculate cumulative monthly costs over time
+        const inputs = this.getInputs();
+        const buyMonthlyCosts = [];
+        const rentMonthlyCosts = [];
+        let buyCumulative = 0;
+        let rentCumulative = 0;
+
+        for (let year = 1; year <= results.years.length; year++) {
+            const yearIndex = year - 1;
+            
+            // Calculate monthly buy costs for this year
+            let monthlyBuyCost = 0;
+            if (results.loanBalances[yearIndex] > 0) {
+                monthlyBuyCost = results.monthlyPayments[yearIndex] || 0;
+            }
+            monthlyBuyCost += (results.propertyTaxes[yearIndex] || 0) / 12;
+            monthlyBuyCost += (inputs.insurance || 0) / 12;
+            monthlyBuyCost += (inputs.maintenance || 0) / 12;
+            
+            // Calculate monthly rent cost for this year
+            const monthlyRentCost = (results.rentExpenses[yearIndex] || 0) / 12;
+            
+            // Add to cumulative totals (multiply by 12 to get annual, then add to cumulative)
+            buyCumulative += monthlyBuyCost * 12;
+            rentCumulative += monthlyRentCost * 12;
+            
+            buyMonthlyCosts.push(buyCumulative);
+            rentMonthlyCosts.push(rentCumulative);
+        }
+
+        this.cumulativeCostChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: results.years,
+                datasets: [
+                    {
+                        label: 'Cumulative Buy Costs',
+                        data: buyMonthlyCosts,
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0
+                    },
+                    {
+                        label: 'Cumulative Rent Costs',
+                        data: rentMonthlyCosts,
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        tension: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: false,
+                plugins: {
+                    title: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 2000000, // Fixed at $2M max cumulative
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + (value / 1000).toFixed(0) + 'K';
+                            }
+                        }
+                    },
+                    x: {
+                        min: 1,
+                        max: 40 // Fixed at 40 years max
                     }
                 }
             }

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What-If Analysis - Rent vs Buy Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="whatif.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+    <div class="analysis-container">
+        <div class="navigation">
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-calculator"></i> Main Calculator
+            </a>
+            <a href="whatif.html" class="nav-link" style="background: #667eea; color: white;">
+                <i class="fas fa-chart-line"></i> What-If Analysis
+            </a>
+        </div>
+
+        <div class="analysis-header">
+            <h1><i class="fas fa-chart-line"></i> What-If Analysis</h1>
+            <p>Explore how different scenarios affect your rent vs buy decision</p>
+        </div>
+
+        <div class="analysis-controls">
+            <h3><i class="fas fa-sliders-h"></i> Analysis Parameters</h3>
+            
+            <div class="axis-selection">
+                <div class="axis-group">
+                    <h4>X-Axis (Horizontal)</h4>
+                    <select id="xAxisParameter">
+                        <option value="mortgageRate">Interest Rate (%)</option>
+                        <option value="homePrice">Home Price ($)</option>
+                        <option value="downPaymentPercent">Down Payment (%)</option>
+                        <option value="loanTerm">Loan Term (years)</option>
+                    </select>
+                </div>
+                <div class="axis-group">
+                    <h4>Y-Axis (Vertical)</h4>
+                    <select id="yAxisParameter">
+                        <option value="homePrice">Home Price ($)</option>
+                        <option value="mortgageRate">Interest Rate (%)</option>
+                        <option value="downPaymentPercent">Down Payment (%)</option>
+                        <option value="loanTerm">Loan Term (years)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="parameter-selection">
+                <div class="parameter-group" id="interestRateGroup">
+                    <h4><i class="fas fa-percentage"></i> Interest Rate</h4>
+                    <div class="single-slider-container" style="display: none;">
+                        <label><span id="interestSingleValue">6.25%</span></label>
+                        <input type="range" id="interestSingle" min="1" max="15" value="6.25" step="0.25" class="slider">
+                    </div>
+                    <div class="range-inputs-with-sliders" id="interestRangeContainer">
+                        <div class="double-range-container">
+                            <div class="double-range-values">
+                                <span id="interestMinValue">3.0%</span>
+                                <span id="interestMaxValue">8.0%</span>
+                            </div>
+                            <div class="double-range-slider" id="interestDoubleSlider">
+                                <div class="track" id="interestTrack"></div>
+                                <input type="range" id="interestMin" min="1" max="8" value="3" step="0.25">
+                                <input type="range" id="interestMax" min="1" max="8" value="8" step="0.25">
+                            </div>
+                        </div>
+                        <div class="number-group">
+                            <label>Steps</label>
+                            <input type="number" id="interestSteps" value="10" min="5" max="20" class="steps-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="parameter-group" id="homePriceGroup">
+                    <h4><i class="fas fa-home"></i> Home Price</h4>
+                    <div class="single-slider-container" style="display: none;">
+                        <label><span id="priceSingleValue">$1.75M</span></label>
+                        <input type="range" id="priceSingle" min="500000" max="5000000" value="1750000" step="50000" class="slider">
+                    </div>
+                    <div class="range-inputs-with-sliders" id="priceRangeContainer">
+                        <div class="double-range-container">
+                            <div class="double-range-values">
+                                <span id="priceMinValue">$1.0M</span>
+                                <span id="priceMaxValue">$3.0M</span>
+                            </div>
+                            <div class="double-range-slider" id="priceDoubleSlider">
+                                <div class="track" id="priceTrack"></div>
+                                <input type="range" id="priceMin" min="500000" max="5000000" value="1000000" step="100000">
+                                <input type="range" id="priceMax" min="500000" max="5000000" value="3000000" step="100000">
+                            </div>
+                        </div>
+                        <div class="number-group">
+                            <label>Steps</label>
+                            <input type="number" id="priceSteps" value="10" min="5" max="20" class="steps-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="parameter-group" id="downPaymentGroup">
+                    <h4><i class="fas fa-piggy-bank"></i> Down Payment</h4>
+                    <div class="single-slider-container">
+                        <label><span id="downSingleValue">30%</span></label>
+                        <input type="range" id="downSingle" min="5" max="50" value="30" step="5" class="slider">
+                    </div>
+                    <div class="range-inputs-with-sliders" id="downRangeContainer" style="display: none;">
+                        <div class="double-range-container">
+                            <div class="double-range-values">
+                                <span id="downMinValue">10%</span>
+                                <span id="downMaxValue">40%</span>
+                            </div>
+                            <div class="double-range-slider" id="downDoubleSlider">
+                                <div class="track" id="downTrack"></div>
+                                <input type="range" id="downMin" min="5" max="50" value="10" step="5">
+                                <input type="range" id="downMax" min="5" max="50" value="40" step="5">
+                            </div>
+                        </div>
+                        <div class="number-group">
+                            <label>Steps</label>
+                            <input type="number" id="downSteps" value="7" min="3" max="15" class="steps-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="parameter-group" id="loanTermGroup">
+                    <h4><i class="fas fa-calendar-alt"></i> Loan Term</h4>
+                    <div class="single-slider-container">
+                        <label><span id="termSingleValue">30Y</span></label>
+                        <input type="range" id="termSingle" min="10" max="40" value="30" step="5" class="slider">
+                    </div>
+                    <div class="range-inputs-with-sliders" id="termRangeContainer" style="display: none;">
+                        <div class="double-range-container">
+                            <div class="double-range-values">
+                                <span id="termMinValue">15Y</span>
+                                <span id="termMaxValue">30Y</span>
+                            </div>
+                            <div class="double-range-slider" id="termDoubleSlider">
+                                <div class="track" id="termTrack"></div>
+                                <input type="range" id="termMin" min="10" max="40" value="15" step="5">
+                                <input type="range" id="termMax" min="10" max="40" value="30" step="5">
+                            </div>
+                        </div>
+                        <div class="number-group">
+                            <label>Steps</label>
+                            <input type="number" id="termSteps" value="4" min="2" max="8" class="steps-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="base-scenario">
+                <h4><i class="fas fa-anchor"></i> Base Scenario (Fixed Parameters)</h4>
+                <div class="base-inputs">
+                    <div class="base-slider-row">
+                        <div class="form-group">
+                            <label for="baseRent">Monthly Rent ($): <span id="baseRentValue">$4,500</span></label>
+                            <input type="range" id="baseRent" min="2000" max="10000" value="4500" step="100" class="slider">
+                        </div>
+                        <div class="form-group">
+                            <label for="baseRentIncrease">Rent Increase (%): <span id="baseRentIncreaseValue">5.0%</span></label>
+                            <input type="range" id="baseRentIncrease" min="2" max="10" value="5" step="0.5" class="slider">
+                        </div>
+                        <div class="form-group">
+                            <label for="baseTaxRate">Property Tax Rate (%): <span id="baseTaxRateValue">1.11%</span></label>
+                            <input type="range" id="baseTaxRate" min="0.5" max="3" value="1.11" step="0.05" class="slider">
+                        </div>
+                    </div>
+                    <div class="base-slider-row">
+                        <div class="form-group">
+                            <label for="baseHomeReturn">Home Appreciation (%): <span id="baseHomeReturnValue">3.0%</span></label>
+                            <input type="range" id="baseHomeReturn" min="0" max="8" value="3" step="0.25" class="slider">
+                        </div>
+                        <div class="form-group">
+                            <label for="baseStockReturn">Stock Return (%): <span id="baseStockReturnValue">6.0%</span></label>
+                            <input type="range" id="baseStockReturn" min="3" max="12" value="6" step="0.25" class="slider">
+                        </div>
+                        <div class="form-group">
+                            <label for="baseInflation">Inflation (%): <span id="baseInflationValue">2.0%</span></label>
+                            <input type="range" id="baseInflation" min="0" max="5" value="2" step="0.25" class="slider">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-row" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0;">
+                <button class="analysis-button" id="runAnalysis">
+                    <i class="fas fa-play"></i> Run Analysis
+                </button>
+                <button type="button" id="toggleBaseScenario" class="toggle-button">
+                    <i class="fas fa-cog"></i> Advanced Settings
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h3><i class="fas fa-chart-area"></i> Analysis Results</h3>
+            <div id="loadingIndicator" class="loading">
+                <i class="fas fa-spinner"></i>
+                <p>Running analysis...</p>
+            </div>
+            <div id="chartResults" style="display: none;">
+                <div class="legend-container">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #28a745;"></div>
+                        <span>Buy is Better</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #dc3545;"></div>
+                        <span>Rent is Better</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffc107;"></div>
+                        <span>Close Call (±$100k)</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="heatmapChart"></canvas>
+                </div>
+                <div id="summaryStats"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="calculator.js"></script>
+    <script src="whatif.js"></script>
+</body>
+</html>

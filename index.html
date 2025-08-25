@@ -10,6 +10,15 @@
 </head>
 <body>
     <div class="container">
+        <div class="navigation">
+            <a href="index.html" class="nav-link" style="background: #667eea; color: white;">
+                <i class="fas fa-calculator"></i> Main Calculator
+            </a>
+            <a href="whatif.html" class="nav-link">
+                <i class="fas fa-chart-line"></i> What-If Analysis
+            </a>
+        </div>
+
         <header>
             <h1><i class="fas fa-home"></i> Rent vs Buy Calculator</h1>
             <p>Compare the financial implications of renting vs buying a home</p>
@@ -205,6 +214,10 @@
                     <div class="chart-container">
                         <h3>Monthly Costs Over Time</h3>
                         <canvas id="monthlyLineChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Cumulative Monthly Costs</h3>
+                        <canvas id="cumulativeCostChart"></canvas>
                     </div>
                 </div>
 

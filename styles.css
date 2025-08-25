@@ -17,6 +17,26 @@ body {
     padding: 20px;
 }
 
+.navigation {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.nav-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #f8f9fa;
+    color: #495057;
+    text-decoration: none;
+    border-radius: 6px;
+    margin: 0 10px;
+    transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+    background: #e9ecef;
+}
+
 header {
     text-align: center;
     margin-bottom: 30px;
@@ -452,6 +472,8 @@ input[type="number"] {
     padding: 25px;
     border-radius: 12px;
     border: 1px solid #dee2e6;
+    max-height: 900px;
+    overflow: auto;
 }
 
 .chart-container.full-width {
