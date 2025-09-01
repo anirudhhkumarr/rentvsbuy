@@ -51,33 +51,88 @@ const testCalculator = () => {
     console.log('Testing calculator with Excel parameters...');
     const results = calculator.calculateForTesting();
     
-    console.log('\nResults for key years:');
+    console.log('\n=== COMPREHENSIVE YEARLY BREAKDOWN ===');
     for (let i = 0; i < results.years.length; i++) {
         const year = results.years[i];
-        // Show first 3 years, then every 5 years, then years around loan payoff, then final years
-        if (year <= 3 || year % 5 === 0 || year >= 28) {
-            console.log(`Year ${year}:`);
-            console.log(`  Home Value: $${results.homeValues[i].toLocaleString()}`);
-            console.log(`  Loan Balance: $${results.loans[i].toLocaleString()}`);
-            console.log(`  Buy Real: $${results.buyReals[i].toFixed(0)}`);
-            console.log(`  Rent Real: $${results.rentReals[i].toFixed(0)}`);
-            console.log('');
+        console.log(`\n--- YEAR ${year} ---`);
+        
+        // BUY SCENARIO
+        console.log(`BUY SCENARIO:`);
+        console.log(`  Loan Balance: $${results.loans[i].toLocaleString()}`);
+        console.log(`  Interest Paid: $${results.interests[i].toLocaleString()}`);
+        console.log(`  Property Tax + Maintenance: $${results.taxMaintenances[i].toLocaleString()}`);
+        console.log(`  Home Value: $${results.homeValues[i].toLocaleString()}`);
+        console.log(`  Selling Price: $${results.sellingPrices[i].toLocaleString()}`);
+        console.log(`  Capital Gain: $${results.capitalGains[i].toLocaleString()}`);
+        console.log(`  Tax on Gain: $${results.taxes[i].toLocaleString()}`);
+        console.log(`  Buy Value (After Tax): $${results.buyValues[i].toLocaleString()}`);
+        console.log(`  Buy Real (Inflation Adjusted): $${results.buyReals[i].toFixed(0)}`);
+        
+        // RENT SCENARIO
+        console.log(`RENT SCENARIO:`);
+        console.log(`  Start Balance: $${results.rentStartBalances[i].toLocaleString()}`);
+        console.log(`  Stock Return (6%): $${results.rentReturns[i].toLocaleString()}`);
+        console.log(`  Rent Expense: $${results.rentExpenses[i].toLocaleString()}`);
+        console.log(`  New Investment: $${results.newInvestments[i].toLocaleString()}`);
+        console.log(`  Year End Balance: $${results.yearEndBalances[i].toLocaleString()}`);
+        console.log(`  Total Invested: $${results.totalInvested[i].toLocaleString()}`);
+        console.log(`  Gains: $${(results.yearEndBalances[i] - results.totalInvested[i]).toLocaleString()}`);
+        console.log(`  Tax on Gains (33%): $${results.rentTaxes[i].toLocaleString()}`);
+        console.log(`  Rent Value (After Tax): $${results.rentValues[i].toLocaleString()}`);
+        console.log(`  Rent Real (Inflation Adjusted): $${results.rentReals[i].toFixed(0)}`);
+        
+        // COMPARISON
+        console.log(`COMPARISON:`);
+        console.log(`  Premium (Rent - Buy): $${results.premiums[i].toFixed(0)}`);
+        console.log(`  Recommendation: ${results.premiums[i] > 0 ? 'RENT' : 'BUY'}`);
+        
+        // Only show detailed breakdown for first 5 years and last 5 years to avoid spam
+        if (year > 5 && year < results.years.length - 5) {
+            console.log(`  [Skipping detailed output for middle years...]`);
+            break;
         }
     }
     
-    // Final comparison
-const finalYear = results.years.length - 1;
-const actualFinalYear = results.years[finalYear];
-console.log(`\n=== FINAL COMPARISON (Year ${actualFinalYear}) ===`);
-console.log(`Buy Real (Final): $${results.buyReals[finalYear].toFixed(2)}`);
-console.log(`Rent Real (Final): $${results.rentReals[finalYear].toFixed(2)}`);
-console.log(`Difference (Rent - Buy): $${(results.rentReals[finalYear] - results.buyReals[finalYear]).toFixed(2)}`);
+        // Final comparison
+    const finalYear = results.years.length - 1;
+    const actualFinalYear = results.years[finalYear];
+    console.log(`\n=== FINAL COMPARISON (Year ${actualFinalYear}) ===`);
+    console.log(`Buy Real (Final): $${results.buyReals[finalYear].toFixed(2)}`);
+    console.log(`Rent Real (Final): $${results.rentReals[finalYear].toFixed(2)}`);
+    console.log(`Difference (Rent - Buy): $${(results.rentReals[finalYear] - results.buyReals[finalYear]).toFixed(2)}`);
 
-if (results.rentReals[finalYear] > results.buyReals[finalYear]) {
-    console.log('RECOMMENDATION: RENT is better');
-} else {
-    console.log('RECOMMENDATION: BUY is better');
-}
+    if (results.rentReals[finalYear] > results.buyReals[finalYear]) {
+        console.log('RECOMMENDATION: RENT is better');
+    } else {
+        console.log('RECOMMENDATION: BUY is better');
+    }
+    
+    console.log('\n=== ANALYSIS SUMMARY ===');
+    console.log(`Total Years Analyzed: ${results.years.length}`);
+    console.log(`Loan Term: ${results.loans[0]} years`);
+    console.log(`Initial Down Payment: $${results.rentStartBalances[0].toLocaleString()}`);
+    console.log(`Initial Home Price: $${results.homeValues[0].toLocaleString()}`);
+    
+    // Check for anomalies in rent investment
+    console.log('\n=== RENT INVESTMENT ANALYSIS ===');
+    const lastFewYears = results.years.slice(-5);
+    lastFewYears.forEach((year, index) => {
+        const yearIndex = results.years.length - 5 + index;
+        console.log(`Year ${year}: New Investment: $${results.newInvestments[yearIndex].toLocaleString()}, Total Invested: $${results.totalInvested[yearIndex].toLocaleString()}`);
+    });
+    
+    // Check if rent scenario is getting artificial boosts
+    console.log('\n=== POTENTIAL ISSUES ===');
+    const lastYearIndex = results.years.length - 1;
+    const lastYearInvestment = results.newInvestments[lastYearIndex];
+    const lastYearTaxMaintenance = results.taxMaintenances[lastYearIndex];
+    console.log(`Last Year Investment: $${lastYearInvestment.toLocaleString()}`);
+    console.log(`Last Year Tax/Maintenance: $${lastYearTaxMaintenance.toLocaleString()}`);
+    console.log(`Last Year Loan Balance: $${results.loans[lastYearIndex].toLocaleString()}`);
+    
+    if (results.loans[lastYearIndex] === 0 && lastYearInvestment > 0) {
+        console.log('⚠️  WARNING: Renter still investing after loan is paid off!');
+    }
 
 console.log('Test completed successfully!');
 };

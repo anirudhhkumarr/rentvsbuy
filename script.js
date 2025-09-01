@@ -397,8 +397,7 @@ class RentBuyUI {
                 },
                 scales: {
                     y: {
-                        min: 0,
-                        max: 4000000, // Fixed at $4M max
+                        beginAtZero: true,
                         ticks: {
                             callback: function(value) {
                                 return '$' + (value / 1000).toFixed(0) + 'K';
@@ -406,8 +405,11 @@ class RentBuyUI {
                         }
                     },
                     x: {
-                        min: 1,
-                        max: 40 // Fixed at 40 years max
+                        ticks: {
+                            callback: function(value, index) {
+                                return results.years[index] || value;
+                            }
+                        }
                     }
                 }
             }
@@ -477,8 +479,7 @@ class RentBuyUI {
                 },
                 scales: {
                     y: {
-                        min: 0,
-                        max: 30000, // Fixed at $30K/month max
+                        beginAtZero: true,
                         ticks: {
                             callback: function(value) {
                                 return '$' + value.toLocaleString();
@@ -486,8 +487,11 @@ class RentBuyUI {
                         }
                     },
                     x: {
-                        min: 1,
-                        max: 40 // Fixed at 40 years max
+                        ticks: {
+                            callback: function(value, index) {
+                                return results.years[index] || value;
+                            }
+                        }
                     }
                 }
             }
@@ -513,12 +517,19 @@ class RentBuyUI {
             
             // Calculate monthly buy costs for this year
             let monthlyBuyCost = 0;
-            if (results.loanBalances[yearIndex] > 0) {
-                monthlyBuyCost = results.monthlyPayments[yearIndex] || 0;
+            if (results.loans[yearIndex] > 0) {
+                // Calculate monthly payment from loan amount and rate
+                const monthlyPayment = this.calculator.calculateMonthlyPayment(inputs);
+                monthlyBuyCost = monthlyPayment;
             }
-            monthlyBuyCost += (results.propertyTaxes[yearIndex] || 0) / 12;
+            monthlyBuyCost += (results.taxMaintenances[yearIndex] || 0) / 12;
             monthlyBuyCost += (inputs.insurance || 0) / 12;
             monthlyBuyCost += (inputs.maintenance || 0) / 12;
+            
+            // Add down payment to first year
+            if (year === 1) {
+                buyCumulative += inputs.downPayment;
+            }
             
             // Calculate monthly rent cost for this year
             const monthlyRentCost = (results.rentExpenses[yearIndex] || 0) / 12;
@@ -562,8 +573,7 @@ class RentBuyUI {
                 },
                 scales: {
                     y: {
-                        min: 0,
-                        max: 2000000, // Fixed at $2M max cumulative
+                        beginAtZero: true,
                         ticks: {
                             callback: function(value) {
                                 return '$' + (value / 1000).toFixed(0) + 'K';
@@ -571,8 +581,11 @@ class RentBuyUI {
                         }
                     },
                     x: {
-                        min: 1,
-                        max: 40 // Fixed at 40 years max
+                        ticks: {
+                            callback: function(value, index) {
+                                return results.years[index] || value;
+                            }
+                        }
                     }
                 }
             }

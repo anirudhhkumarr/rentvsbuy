@@ -346,16 +346,19 @@ class WhatIfAnalysis {
         // If this parameter is selected for analysis, use range
         if (selectedParams.includes(paramName)) {
             const paramMap = {
-                'mortgageRate': { min: 'interestMin', max: 'interestMax', steps: 'interestSteps' },
-                'homePrice': { min: 'priceMin', max: 'priceMax', steps: 'priceSteps' },
-                'downPaymentPercent': { min: 'downMin', max: 'downMax', steps: 'downSteps' },
-                'loanTerm': { min: 'termMin', max: 'termMax', steps: 'termSteps' }
+                'mortgageRate': { min: 'interestMin', max: 'interestMax' },
+                'homePrice': { min: 'priceMin', max: 'priceMax' },
+                'downPaymentPercent': { min: 'downMin', max: 'downMax' },
+                'loanTerm': { min: 'termMin', max: 'termMax' }
             };
 
             const config = paramMap[paramName];
             const min = parseFloat(document.getElementById(config.min).value);
             const max = parseFloat(document.getElementById(config.max).value);
-            const steps = parseInt(document.getElementById(config.steps).value);
+            
+            // Get step size from HTML and calculate steps
+            const stepSize = parseFloat(document.getElementById(config.min).step || 1);
+            const steps = Math.round((max - min) / stepSize) + 1;
 
             // Validate inputs
             if (isNaN(min) || isNaN(max) || isNaN(steps)) {

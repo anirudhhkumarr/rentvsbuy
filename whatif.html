@@ -65,14 +65,11 @@
                             </div>
                             <div class="double-range-slider" id="interestDoubleSlider">
                                 <div class="track" id="interestTrack"></div>
-                                <input type="range" id="interestMin" min="1" max="8" value="3" step="0.25">
-                                <input type="range" id="interestMax" min="1" max="8" value="8" step="0.25">
+                                <input type="range" id="interestMin" min="1" max="8" value="3" step="0.1">
+                                <input type="range" id="interestMax" min="1" max="8" value="8" step="0.1">
                             </div>
                         </div>
-                        <div class="number-group">
-                            <label>Steps</label>
-                            <input type="number" id="interestSteps" value="10" min="5" max="20" class="steps-input">
-                        </div>
+
                     </div>
                 </div>
 
@@ -90,14 +87,11 @@
                             </div>
                             <div class="double-range-slider" id="priceDoubleSlider">
                                 <div class="track" id="priceTrack"></div>
-                                <input type="range" id="priceMin" min="500000" max="5000000" value="1000000" step="100000">
-                                <input type="range" id="priceMax" min="500000" max="5000000" value="3000000" step="100000">
+                                <input type="range" id="priceMin" min="500000" max="5000000" value="1000000" step="50000">
+                                <input type="range" id="priceMax" min="500000" max="5000000" value="3000000" step="50000">
                             </div>
                         </div>
-                        <div class="number-group">
-                            <label>Steps</label>
-                            <input type="number" id="priceSteps" value="10" min="5" max="20" class="steps-input">
-                        </div>
+
                     </div>
                 </div>
 
@@ -105,7 +99,7 @@
                     <h4><i class="fas fa-piggy-bank"></i> Down Payment</h4>
                     <div class="single-slider-container">
                         <label><span id="downSingleValue">30%</span></label>
-                        <input type="range" id="downSingle" min="5" max="50" value="30" step="5" class="slider">
+                        <input type="range" id="downSingle" min="5" max="100" value="30" step="1" class="slider">
                     </div>
                     <div class="range-inputs-with-sliders" id="downRangeContainer" style="display: none;">
                         <div class="double-range-container">
@@ -115,14 +109,11 @@
                             </div>
                             <div class="double-range-slider" id="downDoubleSlider">
                                 <div class="track" id="downTrack"></div>
-                                <input type="range" id="downMin" min="5" max="50" value="10" step="5">
-                                <input type="range" id="downMax" min="5" max="50" value="40" step="5">
+                                <input type="range" id="downMin" min="5" max="100" value="10" step="1">
+                                <input type="range" id="downMax" min="5" max="100" value="40" step="1">
                             </div>
                         </div>
-                        <div class="number-group">
-                            <label>Steps</label>
-                            <input type="number" id="downSteps" value="7" min="3" max="15" class="steps-input">
-                        </div>
+
                     </div>
                 </div>
 
@@ -130,7 +121,7 @@
                     <h4><i class="fas fa-calendar-alt"></i> Loan Term</h4>
                     <div class="single-slider-container">
                         <label><span id="termSingleValue">30Y</span></label>
-                        <input type="range" id="termSingle" min="10" max="40" value="30" step="5" class="slider">
+                        <input type="range" id="termSingle" min="10" max="40" value="30" step="1" class="slider">
                     </div>
                     <div class="range-inputs-with-sliders" id="termRangeContainer" style="display: none;">
                         <div class="double-range-container">
@@ -140,14 +131,11 @@
                             </div>
                             <div class="double-range-slider" id="termDoubleSlider">
                                 <div class="track" id="termTrack"></div>
-                                <input type="range" id="termMin" min="10" max="40" value="15" step="5">
-                                <input type="range" id="termMax" min="10" max="40" value="30" step="5">
+                                <input type="range" id="termMin" min="10" max="40" value="15" step="1">
+                                <input type="range" id="termMax" min="10" max="40" value="30" step="1">
                             </div>
                         </div>
-                        <div class="number-group">
-                            <label>Steps</label>
-                            <input type="number" id="termSteps" value="4" min="2" max="8" class="steps-input">
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -229,4 +217,6 @@
     <script src="calculator.js"></script>
     <script src="whatif.js"></script>
 </body>
+</html>
+</html>
 </html>
