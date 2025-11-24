@@ -582,7 +582,7 @@ class WhatIfAnalysis {
         // 20 levels for Buy Better (green gradients)
         for (let i = 1; i <= 20; i++) {
             const opacity = 0.1 + (i * 0.045); // 0.1 to 1.0
-            const radius = 2 + Math.floor(i / 4); // 2 to 6
+            const radius = Math.ceil(i / 4) + 4; // Size 5 to 10 (every 4 levels share same size)
             magnitudeCategories[`buy_${i}`] = {
                 data: [],
                 color: `rgba(40, 167, 69, ${opacity})`,
@@ -594,7 +594,7 @@ class WhatIfAnalysis {
         // 20 levels for Rent Better (red gradients)
         for (let i = 1; i <= 20; i++) {
             const opacity = 0.1 + (i * 0.045); // 0.1 to 1.0
-            const radius = 2 + Math.floor(i / 4); // 2 to 6
+            const radius = Math.ceil(i / 4) + 4; // Size 5 to 10 (every 4 levels share same size)
             magnitudeCategories[`rent_${i}`] = {
                 data: [],
                 color: `rgba(220, 53, 69, ${opacity})`,

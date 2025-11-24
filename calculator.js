@@ -68,7 +68,7 @@ class RentBuyCalculator {
         let previousSellingPrice = previousHomeValue * 0.97; // J3: =I3*0.97
         let previousCapitalGain = Math.max(0, previousSellingPrice - previousTaxableValue); // K3: =max(0,J3-G3)
         let previousTax = Math.max(0, previousCapitalGain - 500000) * 0.33; // L3: =max(0,K3-500000)*0.33 (20% federal + 13% California)
-        let previousBuyValue = previousSellingPrice - previousLoan - previousTax; // M3: =J3-E3-L3
+        let previousBuyValue = previousSellingPrice - Math.max(0, previousLoan + previousInterest - yearlyPayment) - previousTax; // M3: =J3-E3-L3
         let previousBuyReal = previousBuyValue / Math.pow(1 + inputs.inflation / 100, 1); // N3: =M3/(1+$B$22)^D3
         
         // For rent side, start with down payment amount invested
@@ -78,7 +78,7 @@ class RentBuyCalculator {
         let previousNewInvestment = (previousLoan > 0 ? yearlyPayment : 0) - previousRentExpense + previousTaxMaintenance; // S3: =IF(E3>0,-$C$12,0)-R3+H3 (C12 is negative, so -$C$12 is positive)
         let previousYearEndBalance = previousRentStartBalance + previousRentReturn + previousNewInvestment; // T3: =P3+Q3+S3
         let previousTotalInvested = inputs.downPayment + previousNewInvestment; // U3: =$P$3+sum($S$3:S3)
-        let previousRentTax = (previousYearEndBalance - previousTotalInvested) * 0.33; // V3: =(T3-U3)*0.33 (20% federal + 13% California)
+        let previousRentTax = (previousYearEndBalance - previousTotalInvested) * 0.368; // V3: =(T3-U3)*0.368 (20% federal + 13% California + 3.8% NIIT)
         let previousRentValue = previousYearEndBalance - previousRentTax; // W3: =T3-V3
         let previousRentReal = previousRentValue / Math.pow(1 + inputs.inflation / 100, 1); // X3: =W3/(1+$B$22)^D3
 
@@ -134,7 +134,9 @@ class RentBuyCalculator {
             const tax = Math.max(0, capitalGain - 500000) * 0.33; // 20% federal + 13% California
             
             // Column M: Buy Value (Excel formula: =J{row}-E{row}-L{row})
-            const buyValue = sellingPrice - loan - tax;
+            // Use end-of-year loan balance (after making payments) for Buy Value calculation
+            const endOfYearLoan = Math.max(0, loan + interest - yearlyPayment);
+            const buyValue = sellingPrice - endOfYearLoan - tax;
             
             // Column N: Buy (Real) (Excel formula: =M{row}/(1+$B$22)^D{row})
             const buyReal = buyValue / Math.pow(1 + inputs.inflation / 100, year);
@@ -158,8 +160,8 @@ class RentBuyCalculator {
             // Column U: Total Invested (Excel formula: =$P$3+sum($S$3:S{row}))
             const totalInvested = previousTotalInvested + newInvestment;
             
-            // Column V: Tax (Excel formula: =(T{row}-U{row})*0.33)
-            const rentTax = (yearEndBalance - totalInvested) * 0.33; // 20% federal + 13% California
+            // Column V: Tax (Excel formula: =(T{row}-U{row})*0.368)
+            const rentTax = (yearEndBalance - totalInvested) * 0.368; // 20% federal + 13% California + 3.8% NIIT
             
             // Column W: Rent Value (Excel formula: =T{row}-V{row})
             const rentValue = yearEndBalance - rentTax;

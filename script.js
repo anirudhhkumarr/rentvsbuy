@@ -48,13 +48,14 @@ class RentBuyUI {
         this.monthlyLineChart = null;
 
         this.breakdownTableBody = document.getElementById('breakdownTableBody');
-        
-        // Chart elements (removed monthly breakdown chart)
-        // this.yearSlider = document.getElementById('yearSlider');
-        // this.yearDisplay = document.getElementById('yearDisplay');
-        // this.buyToggle = document.getElementById('buyToggle');
-        // this.rentToggle = document.getElementById('rentToggle');
-        
+
+        // Chart focus controls
+        this.yearSlider = document.getElementById('yearSlider');
+        this.yearSliderLabel = document.getElementById('yearSliderLabel');
+        this.yearSliderContainer = this.yearSlider ? this.yearSlider.closest('.year-slider-container') : null;
+        this.selectedYear = this.yearSlider ? parseInt(this.yearSlider.value, 10) || 1 : null;
+        this.focusYearPlugin = this.createFocusYearPlugin();
+
         // Collapsible elements
         this.setupCollapsible();
     }
@@ -240,6 +241,14 @@ class RentBuyUI {
             this.calculate();
         });
 
+        if (this.yearSlider) {
+            this.yearSlider.addEventListener('input', () => {
+                this.selectedYear = parseInt(this.yearSlider.value, 10) || 1;
+                this.updateYearLabel();
+                this.calculate();
+            });
+        }
+
         // Removed: Year slider for monthly costs chart (chart was removed)
 
         // Removed: Toggle buttons for buy/rent costs (chart was removed)
@@ -264,18 +273,17 @@ class RentBuyUI {
         // Calculate down payment amount from percentage
         const downPaymentAmount = this.homePrice.value * (this.downPaymentPercent.value / 100);
         
-        // Update loan amount display and hidden field
+        // Update loan and down payment displays plus hidden fields
         const loanAmount = this.homePrice.value - downPaymentAmount;
         this.loanAmountDisplay.textContent = this.formatCurrency(loanAmount);
         this.loanAmount.value = loanAmount;
+        this.downPaymentDisplay.textContent = this.formatCurrency(downPaymentAmount);
+        this.downPayment.value = downPaymentAmount;
         
         // Update annual rent display and hidden field
         const annualRent = this.monthlyRent.value * 12;
         this.annualRentDisplay.textContent = this.formatCurrency(annualRent);
         this.annualRent.value = annualRent;
-        
-        // Update hidden down payment field
-        this.downPayment.value = downPaymentAmount;
         
         // Update property tax amount
         const propertyTaxAmount = this.homePrice.value * (this.propertyTax.value / 100);
@@ -292,6 +300,7 @@ class RentBuyUI {
         
         // Store results for chart updates
         this.lastResults = results;
+        this.updateYearSlider(results);
         
         this.updateDisplay(results);
         this.updateCharts(results);
@@ -325,14 +334,15 @@ class RentBuyUI {
     }
 
     updateDisplay(results) {
-        // Show the final year values (based on loan term), not the sum
-        const finalYearIndex = results.years.length - 1;
-        const finalBuyReal = results.buyReals[finalYearIndex] || 0;
-        const finalRentReal = results.rentReals[finalYearIndex] || 0;
-        const totalDifference = finalRentReal - finalBuyReal;
+        const targetYear = this.getSelectedYear(results);
+        const matchedIndex = results.years.indexOf(targetYear);
+        const yearIndex = matchedIndex === -1 ? results.years.length - 1 : matchedIndex;
+        const focusBuyReal = results.buyReals[yearIndex] || 0;
+        const focusRentReal = results.rentReals[yearIndex] || 0;
+        const totalDifference = focusRentReal - focusBuyReal;
 
-        this.buyTotalCost.textContent = this.formatCurrency(finalBuyReal);
-        this.rentTotalCost.textContent = this.formatCurrency(finalRentReal);
+        this.buyTotalCost.textContent = this.formatCurrency(focusBuyReal);
+        this.rentTotalCost.textContent = this.formatCurrency(focusRentReal);
         this.costDifference.textContent = this.formatCurrency(totalDifference);
 
         // Labels updated in HTML
@@ -412,8 +422,92 @@ class RentBuyUI {
                         }
                     }
                 }
-            }
+            },
+            plugins: [this.focusYearPlugin]
         });
+    }
+
+    createFocusYearPlugin() {
+        return {
+            id: 'focusYearLine',
+            afterDatasetsDraw: (chart) => {
+                this.resizeSliderToChart(chart);
+                if (!this.selectedYear) return;
+                const labels = chart.data.labels || [];
+                const targetIndex = labels.indexOf(this.selectedYear);
+                if (targetIndex === -1) return;
+
+                const meta = chart.getDatasetMeta(0);
+                const point = meta?.data?.[targetIndex];
+                if (!point) return;
+
+                const { top, bottom } = chart.chartArea;
+                const ctx = chart.ctx;
+                ctx.save();
+                ctx.strokeStyle = '#ff6384';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([6, 4]);
+                ctx.beginPath();
+                ctx.moveTo(point.x, top);
+                ctx.lineTo(point.x, bottom);
+                ctx.stroke();
+                ctx.restore();
+            }
+        };
+    }
+
+    resizeSliderToChart(chart) {
+        if (!this.yearSliderContainer || !chart?.chartArea) return;
+        const areaWidth = chart.chartArea.right - chart.chartArea.left;
+        if (areaWidth <= 0) return;
+        this.yearSliderContainer.style.width = `${areaWidth}px`;
+        this.yearSliderContainer.style.marginLeft = `${chart.chartArea.left}px`;
+        this.yearSliderContainer.style.marginRight = `${Math.max(chart.width - chart.chartArea.right, 0)}px`;
+    }
+
+    updateYearSlider(results) {
+        if (!this.yearSlider || !results || !results.years.length) return;
+        const maxYear = results.years[results.years.length - 1];
+        this.yearSlider.max = maxYear;
+
+        if (!this.selectedYear) {
+            this.selectedYear = parseInt(this.yearSlider.value, 10) || maxYear;
+        }
+
+        if (this.selectedYear > maxYear) {
+            this.selectedYear = maxYear;
+        }
+
+        this.yearSlider.value = this.selectedYear;
+        this.updateYearLabel();
+    }
+
+    getSelectedYear(results) {
+        if (!results || !results.years.length) {
+            this.selectedYear = 1;
+            return 1;
+        }
+
+        const maxYear = results.years[results.years.length - 1];
+        if (!this.selectedYear || this.selectedYear < 1) {
+            this.selectedYear = maxYear;
+        } else if (this.selectedYear > maxYear) {
+            this.selectedYear = maxYear;
+        }
+
+        if (this.yearSlider) {
+            this.yearSlider.value = this.selectedYear;
+        }
+
+        this.updateYearLabel();
+        return this.selectedYear;
+    }
+
+    updateYearLabel(year = this.selectedYear) {
+        if (this.yearSliderLabel) {
+            const value = year || 1;
+            this.yearSliderLabel.textContent = `Year ${value}`;
+        }
     }
 
     updateMonthlyLineChart(results) {
