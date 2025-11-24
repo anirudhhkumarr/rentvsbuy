@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
+
 <body>
     <div class="analysis-container">
         <div class="navigation">
@@ -28,7 +30,7 @@
 
         <div class="analysis-controls">
             <h3><i class="fas fa-sliders-h"></i> Analysis Parameters</h3>
-            
+
             <div class="axis-selection">
                 <div class="axis-group">
                     <h4>X-Axis (Horizontal)</h4>
@@ -55,7 +57,7 @@
                     <h4><i class="fas fa-percentage"></i> Interest Rate</h4>
                     <div class="single-slider-container" style="display: none;">
                         <label><span id="interestSingleValue">6.25%</span></label>
-                        <input type="range" id="interestSingle" min="1" max="15" value="6.25" step="0.1" class="slider">
+                        <input type="range" id="interestSingle" min="3" max="8" value="6.25" step="0.05" class="slider">
                     </div>
                     <div class="range-inputs-with-sliders" id="interestRangeContainer">
                         <div class="double-range-container">
@@ -65,8 +67,8 @@
                             </div>
                             <div class="double-range-slider" id="interestDoubleSlider">
                                 <div class="track" id="interestTrack"></div>
-                                <input type="range" id="interestMin" min="1" max="8" value="3" step="0.1">
-                                <input type="range" id="interestMax" min="1" max="8" value="8" step="0.1">
+                                <input type="range" id="interestMin" min="3" max="8" value="3" step="0.05">
+                                <input type="range" id="interestMax" min="3" max="8" value="8" step="0.05">
                             </div>
                         </div>
 
@@ -77,7 +79,8 @@
                     <h4><i class="fas fa-home"></i> Home Price</h4>
                     <div class="single-slider-container" style="display: none;">
                         <label><span id="priceSingleValue">$1.75M</span></label>
-                        <input type="range" id="priceSingle" min="500000" max="5000000" value="1750000" step="50000" class="slider">
+                        <input type="range" id="priceSingle" min="500000" max="5000000" value="1750000" step="50000"
+                            class="slider">
                     </div>
                     <div class="range-inputs-with-sliders" id="priceRangeContainer">
                         <div class="double-range-container">
@@ -87,8 +90,10 @@
                             </div>
                             <div class="double-range-slider" id="priceDoubleSlider">
                                 <div class="track" id="priceTrack"></div>
-                                <input type="range" id="priceMin" min="500000" max="5000000" value="1000000" step="50000">
-                                <input type="range" id="priceMax" min="500000" max="5000000" value="3000000" step="50000">
+                                <input type="range" id="priceMin" min="500000" max="5000000" value="1000000"
+                                    step="50000">
+                                <input type="range" id="priceMax" min="500000" max="5000000" value="3000000"
+                                    step="50000">
                             </div>
                         </div>
 
@@ -147,25 +152,34 @@
                     <div class="base-slider-row">
                         <div class="form-group">
                             <label for="baseRent">Monthly Rent ($): <span id="baseRentValue">$4,500</span></label>
-                            <input type="range" id="baseRent" min="2000" max="10000" value="4500" step="100" class="slider">
+                            <input type="range" id="baseRent" min="2000" max="10000" value="4500" step="100"
+                                class="slider">
                         </div>
                         <div class="form-group">
-                            <label for="baseRentIncrease">Rent Increase (%): <span id="baseRentIncreaseValue">5.0%</span></label>
-                            <input type="range" id="baseRentIncrease" min="2" max="10" value="5" step="0.5" class="slider">
+                            <label for="baseRentIncrease">Rent Increase (%): <span
+                                    id="baseRentIncreaseValue">5.0%</span></label>
+                            <input type="range" id="baseRentIncrease" min="2" max="10" value="5" step="0.5"
+                                class="slider">
                         </div>
                         <div class="form-group">
-                            <label for="baseTaxRate">Property Tax Rate (%): <span id="baseTaxRateValue">1.11%</span></label>
-                            <input type="range" id="baseTaxRate" min="0.5" max="3" value="1.11" step="0.05" class="slider">
+                            <label for="baseTaxRate">Property Tax Rate (%): <span
+                                    id="baseTaxRateValue">1.11%</span></label>
+                            <input type="range" id="baseTaxRate" min="0.5" max="3" value="1.11" step="0.05"
+                                class="slider">
                         </div>
                     </div>
                     <div class="base-slider-row">
                         <div class="form-group">
-                            <label for="baseHomeReturn">Home Appreciation (%): <span id="baseHomeReturnValue">3.0%</span></label>
-                            <input type="range" id="baseHomeReturn" min="0" max="8" value="3" step="0.25" class="slider">
+                            <label for="baseHomeReturn">Home Appreciation (%): <span
+                                    id="baseHomeReturnValue">3.0%</span></label>
+                            <input type="range" id="baseHomeReturn" min="0" max="8" value="3" step="0.25"
+                                class="slider">
                         </div>
                         <div class="form-group">
-                            <label for="baseStockReturn">Stock Return (%): <span id="baseStockReturnValue">6.0%</span></label>
-                            <input type="range" id="baseStockReturn" min="3" max="12" value="6" step="0.25" class="slider">
+                            <label for="baseStockReturn">Stock Return (%): <span
+                                    id="baseStockReturnValue">6.0%</span></label>
+                            <input type="range" id="baseStockReturn" min="3" max="12" value="6" step="0.25"
+                                class="slider">
                         </div>
                         <div class="form-group">
                             <label for="baseInflation">Inflation (%): <span id="baseInflationValue">2.0%</span></label>
@@ -178,14 +192,17 @@
                             <input type="range" id="baseLoanTerm" min="10" max="40" value="30" step="1" class="slider">
                         </div>
                         <div class="form-group">
-                            <label for="investingHorizon">Investing Horizon (years): <span id="investingHorizonValue">30</span></label>
-                            <input type="range" id="investingHorizon" min="1" max="40" value="30" step="1" class="slider">
+                            <label for="investingHorizon">Investing Horizon (years): <span
+                                    id="investingHorizonValue">30</span></label>
+                            <input type="range" id="investingHorizon" min="1" max="40" value="30" step="1"
+                                class="slider">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="button-row" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0;">
+            <div class="button-row"
+                style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0;">
                 <button class="analysis-button" id="runAnalysis">
                     <i class="fas fa-play"></i> Run Analysis
                 </button>
@@ -203,24 +220,22 @@
                 <p>Running analysis...</p>
             </div>
             <div id="chartResults" style="display: none;">
+
                 <div class="legend-container">
                     <div class="legend-item">
                         <div class="legend-color" style="background: #28a745;"></div>
                         <span>Buy is Better</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background: #dc3545;"></div>
+                        <div class="legend-color" style="background: #007bff;"></div>
                         <span>Rent is Better</span>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #ffc107;"></div>
-                        <span>Close Call (±$100k)</span>
-                    </div>
+
                 </div>
                 <div class="chart-container">
                     <canvas id="heatmapChart"></canvas>
                 </div>
-                <div id="summaryStats"></div>
+
             </div>
         </div>
     </div>
@@ -228,6 +243,9 @@
     <script src="calculator.js"></script>
     <script src="whatif.js"></script>
 </body>
+
 </html>
+
 </html>
+
 </html>
