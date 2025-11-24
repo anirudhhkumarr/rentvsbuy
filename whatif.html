@@ -36,7 +36,7 @@
                         <option value="mortgageRate">Interest Rate (%)</option>
                         <option value="homePrice">Home Price ($)</option>
                         <option value="downPaymentPercent">Down Payment (%)</option>
-                        <option value="loanTerm">Loan Term (years)</option>
+                        <option value="investingHorizon">Investing Horizon (years)</option>
                     </select>
                 </div>
                 <div class="axis-group">
@@ -45,7 +45,7 @@
                         <option value="homePrice">Home Price ($)</option>
                         <option value="mortgageRate">Interest Rate (%)</option>
                         <option value="downPaymentPercent">Down Payment (%)</option>
-                        <option value="loanTerm">Loan Term (years)</option>
+                        <option value="investingHorizon">Investing Horizon (years)</option>
                     </select>
                 </div>
             </div>
@@ -117,27 +117,28 @@
                     </div>
                 </div>
 
-                <div class="parameter-group" id="loanTermGroup">
-                    <h4><i class="fas fa-calendar-alt"></i> Loan Term</h4>
+                <div class="parameter-group" id="investingHorizonGroup">
+                    <h4><i class="fas fa-calendar-alt"></i> Investing Horizon</h4>
                     <div class="single-slider-container">
-                        <label><span id="termSingleValue">30Y</span></label>
-                        <input type="range" id="termSingle" min="10" max="40" value="30" step="1" class="slider">
+                        <label><span id="horizonSingleValue">30 years</span></label>
+                        <input type="range" id="horizonSingle" min="1" max="40" value="30" step="1" class="slider">
                     </div>
-                    <div class="range-inputs-with-sliders" id="termRangeContainer" style="display: none;">
+                    <div class="range-inputs-with-sliders" id="horizonRangeContainer" style="display: none;">
                         <div class="double-range-container">
                             <div class="double-range-values">
-                                <span id="termMinValue">15Y</span>
-                                <span id="termMaxValue">30Y</span>
+                                <span id="horizonMinValue">10 years</span>
+                                <span id="horizonMaxValue">40 years</span>
                             </div>
-                            <div class="double-range-slider" id="termDoubleSlider">
-                                <div class="track" id="termTrack"></div>
-                                <input type="range" id="termMin" min="10" max="40" value="15" step="1">
-                                <input type="range" id="termMax" min="10" max="40" value="30" step="1">
+                            <div class="double-range-slider" id="horizonDoubleSlider">
+                                <div class="track" id="horizonTrack"></div>
+                                <input type="range" id="horizonMin" min="1" max="40" value="10" step="1">
+                                <input type="range" id="horizonMax" min="1" max="40" value="40" step="1">
                             </div>
                         </div>
 
                     </div>
                 </div>
+
             </div>
 
             <div class="base-scenario">
@@ -169,6 +170,16 @@
                         <div class="form-group">
                             <label for="baseInflation">Inflation (%): <span id="baseInflationValue">2.0%</span></label>
                             <input type="range" id="baseInflation" min="0" max="5" value="2" step="0.25" class="slider">
+                        </div>
+                    </div>
+                    <div class="base-slider-row">
+                        <div class="form-group">
+                            <label for="baseLoanTerm">Loan Term (years): <span id="baseLoanTermValue">30</span></label>
+                            <input type="range" id="baseLoanTerm" min="10" max="40" value="30" step="1" class="slider">
+                        </div>
+                        <div class="form-group">
+                            <label for="investingHorizon">Investing Horizon (years): <span id="investingHorizonValue">30</span></label>
+                            <input type="range" id="investingHorizon" min="1" max="40" value="30" step="1" class="slider">
                         </div>
                     </div>
                 </div>

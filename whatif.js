@@ -40,6 +40,8 @@ class WhatIfAnalysis {
             { id: 'baseHomeReturn', display: 'baseHomeReturnValue', format: (v) => `${parseFloat(v).toFixed(1)}%` },
             { id: 'baseStockReturn', display: 'baseStockReturnValue', format: (v) => `${parseFloat(v).toFixed(1)}%` },
             { id: 'baseInflation', display: 'baseInflationValue', format: (v) => `${parseFloat(v).toFixed(1)}%` },
+            { id: 'baseLoanTerm', display: 'baseLoanTermValue', format: (v) => `${parseInt(v)}` },
+            { id: 'investingHorizon', display: 'investingHorizonValue', format: (v) => `${parseInt(v)}` },
             
             // Range parameter sliders
             { id: 'interestMin', display: 'interestMinValue', format: (v) => `${parseFloat(v).toFixed(1)}%` },
@@ -48,14 +50,16 @@ class WhatIfAnalysis {
             { id: 'priceMax', display: 'priceMaxValue', format: (v) => `$${(parseFloat(v) / 1000000).toFixed(1)}M` },
             { id: 'downMin', display: 'downMinValue', format: (v) => `${parseInt(v)}%` },
             { id: 'downMax', display: 'downMaxValue', format: (v) => `${parseInt(v)}%` },
-            { id: 'termMin', display: 'termMinValue', format: (v) => `${parseInt(v)}` },
-            { id: 'termMax', display: 'termMaxValue', format: (v) => `${parseInt(v)}` },
             
             // Single value sliders
             { id: 'interestSingle', display: 'interestSingleValue', format: (v) => `${parseFloat(v).toFixed(2)}%` },
             { id: 'priceSingle', display: 'priceSingleValue', format: (v) => `$${(parseFloat(v) / 1000000).toFixed(2)}M` },
             { id: 'downSingle', display: 'downSingleValue', format: (v) => `${parseInt(v)}%` },
-            { id: 'termSingle', display: 'termSingleValue', format: (v) => `${parseInt(v)} years` }
+            { id: 'horizonSingle', display: 'horizonSingleValue', format: (v) => `${parseInt(v)} years` },
+            
+            // Range parameter sliders for horizon
+            { id: 'horizonMin', display: 'horizonMinValue', format: (v) => `${parseInt(v)} years` },
+            { id: 'horizonMax', display: 'horizonMaxValue', format: (v) => `${parseInt(v)} years` }
         ];
 
         sliders.forEach(slider => {
@@ -109,8 +113,6 @@ class WhatIfAnalysis {
         const priceMax = parseFloat(document.getElementById('priceMax').value);
         const downMin = parseInt(document.getElementById('downMin').value);
         const downMax = parseInt(document.getElementById('downMax').value);
-        const termMin = parseInt(document.getElementById('termMin').value);
-        const termMax = parseInt(document.getElementById('termMax').value);
         
         // Fix interest rate range if needed
         if (interestMin >= interestMax) {
@@ -129,12 +131,6 @@ class WhatIfAnalysis {
             document.getElementById('downMax').value = Math.min(downMin + 5, 50);
             document.getElementById('downMaxValue').textContent = `${document.getElementById('downMax').value}%`;
         }
-        
-        // Fix loan term range if needed
-        if (termMin >= termMax) {
-            document.getElementById('termMax').value = Math.min(termMin + 5, 40);
-            document.getElementById('termMaxValue').textContent = `${document.getElementById('termMax').value}`;
-        }
     }
 
     setupDoubleRangeSliders() {
@@ -142,7 +138,7 @@ class WhatIfAnalysis {
         this.setupDoubleSlider('interest', '%');
         this.setupDoubleSlider('price', '$');
         this.setupDoubleSlider('down', '%');
-        this.setupDoubleSlider('term', ' years');
+        this.setupDoubleSlider('horizon', ' years');
     }
 
     setupDoubleSlider(paramName, suffix) {
@@ -212,7 +208,7 @@ class WhatIfAnalysis {
         
         // Ensure X and Y axes are different
         if (xAxis.value === yAxis.value) {
-            const allOptions = ['mortgageRate', 'homePrice', 'downPaymentPercent', 'loanTerm'];
+            const allOptions = ['mortgageRate', 'homePrice', 'downPaymentPercent'];
             const currentX = xAxis.value;
             const availableForY = allOptions.filter(opt => opt !== currentX);
             yAxis.value = availableForY[0];
@@ -231,13 +227,17 @@ class WhatIfAnalysis {
             'mortgageRate': 'interest',
             'homePrice': 'price', 
             'downPaymentPercent': 'down',
-            'loanTerm': 'term'
+            'investingHorizon': 'horizon'
         };
         
         // Update each parameter group
         Object.entries(paramMap).forEach(([param, prefix]) => {
             const rangeContainer = document.getElementById(`${prefix}RangeContainer`);
-            const singleContainer = document.querySelector(`#${prefix === 'interest' ? 'interestRateGroup' : prefix === 'price' ? 'homePriceGroup' : prefix === 'down' ? 'downPaymentGroup' : 'loanTermGroup'} .single-slider-container`);
+            const groupId = prefix === 'interest' ? 'interestRateGroup' : 
+                          prefix === 'price' ? 'homePriceGroup' : 
+                          prefix === 'down' ? 'downPaymentGroup' : 
+                          'investingHorizonGroup';
+            const singleContainer = document.querySelector(`#${groupId} .single-slider-container`);
             
             if (selectedParams.includes(param)) {
                 // Show range controls for selected parameters
@@ -349,7 +349,7 @@ class WhatIfAnalysis {
                 'mortgageRate': { min: 'interestMin', max: 'interestMax' },
                 'homePrice': { min: 'priceMin', max: 'priceMax' },
                 'downPaymentPercent': { min: 'downMin', max: 'downMax' },
-                'loanTerm': { min: 'termMin', max: 'termMax' }
+                'investingHorizon': { min: 'horizonMin', max: 'horizonMax' }
             };
 
             const config = paramMap[paramName];
@@ -379,7 +379,7 @@ class WhatIfAnalysis {
                 'mortgageRate': 'interestSingle',
                 'homePrice': 'priceSingle',
                 'downPaymentPercent': 'downSingle',
-                'loanTerm': 'termSingle'
+                'investingHorizon': 'horizonSingle'
             };
             
             const singleValue = parseFloat(document.getElementById(singleMap[paramName]).value);
@@ -397,7 +397,9 @@ class WhatIfAnalysis {
             taxMaintenanceRate: parseFloat(document.getElementById('baseTaxRate').value),
             homeReturn: parseFloat(document.getElementById('baseHomeReturn').value),
             stockReturn: parseFloat(document.getElementById('baseStockReturn').value),
-            inflation: parseFloat(document.getElementById('baseInflation').value)
+            inflation: parseFloat(document.getElementById('baseInflation').value),
+            loanTerm: parseInt(document.getElementById('baseLoanTerm').value),
+            investingHorizon: parseInt(document.getElementById('investingHorizon').value)
         };
 
         // Validate all base scenario values
@@ -456,11 +458,21 @@ class WhatIfAnalysis {
         for (const item of allCalculations) {
             const calculation = this.calculator.calculateAll(item.scenario);
             
-            // Get final year comparison
-            const loanTerm = item.scenario.loanTerm;
-            const finalYear = calculation.years[loanTerm];
-            const buyReal = calculation.buyReals[finalYear];
-            const rentReal = calculation.rentReals[finalYear];
+            // Get investing horizon from the scenario (may vary if it's an axis parameter)
+            const investingHorizon = item.scenario.investingHorizon;
+            
+            // Get comparison at investing horizon (or closest available year)
+            // Find the index of the year that matches investingHorizon, or use the last available year
+            let horizonIndex = calculation.years.length - 1;
+            for (let i = 0; i < calculation.years.length; i++) {
+                if (calculation.years[i] >= investingHorizon) {
+                    horizonIndex = i;
+                    break;
+                }
+            }
+            
+            const buyReal = calculation.buyReals[horizonIndex];
+            const rentReal = calculation.rentReals[horizonIndex];
             
             // Check for NaN values
             if (isNaN(buyReal) || isNaN(rentReal)) {
@@ -495,7 +507,7 @@ class WhatIfAnalysis {
         // Start with default values
         let scenario = {
             homePrice: 1750000,
-            loanTerm: 30,
+            loanTerm: baseScenario.loanTerm,
             downPaymentPercent: 30,
             mortgageRate: 6.25,
             mortgagePoints: 0,
@@ -505,11 +517,12 @@ class WhatIfAnalysis {
             propertyReassessmentRate: 1,
             homeReturn: baseScenario.homeReturn,
             stockReturn: baseScenario.stockReturn,
-            inflation: baseScenario.inflation
+            inflation: baseScenario.inflation,
+            investingHorizon: baseScenario.investingHorizon // Will be overridden if selected as axis parameter
         };
 
         // Override non-selected parameters with their single values FIRST
-        const allParams = ['mortgageRate', 'homePrice', 'downPaymentPercent', 'loanTerm'];
+        const allParams = ['mortgageRate', 'homePrice', 'downPaymentPercent', 'investingHorizon'];
         const selectedParams = [xParam, yParam];
         
         allParams.forEach(param => {
