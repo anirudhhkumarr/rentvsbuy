@@ -785,6 +785,8 @@ class WhatIfAnalysis {
             baseHomeReturn: document.getElementById('baseHomeReturn').value,
             baseStockReturn: document.getElementById('baseStockReturn').value,
             baseInflation: document.getElementById('baseInflation').value,
+            baseLoanTerm: document.getElementById('baseLoanTerm').value,
+            investingHorizon: document.getElementById('investingHorizon').value,
 
             // Range sliders
             interestMin: document.getElementById('interestMin').value,
@@ -793,14 +795,14 @@ class WhatIfAnalysis {
             priceMax: document.getElementById('priceMax').value,
             downMin: document.getElementById('downMin').value,
             downMax: document.getElementById('downMax').value,
-            termMin: document.getElementById('termMin').value,
-            termMax: document.getElementById('termMax').value,
+            horizonMin: document.getElementById('horizonMin').value,
+            horizonMax: document.getElementById('horizonMax').value,
 
             // Single value sliders
             interestSingle: document.getElementById('interestSingle').value,
             priceSingle: document.getElementById('priceSingle').value,
             downSingle: document.getElementById('downSingle').value,
-            termSingle: document.getElementById('termSingle').value
+            horizonSingle: document.getElementById('horizonSingle').value
         };
 
         localStorage.setItem('whatIfSettings', JSON.stringify(settings));
@@ -862,6 +864,14 @@ class WhatIfAnalysis {
 
             // Update axis options after loading
             this.updateAxisOptions();
+
+            // Trigger input events on double sliders to update tracks
+            ['interestMin', 'interestMax', 'priceMin', 'priceMax', 'downMin', 'downMax', 'horizonMin', 'horizonMax'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.dispatchEvent(new Event('input'));
+                }
+            });
 
         } catch (error) {
             console.error('Error loading saved settings:', error);
