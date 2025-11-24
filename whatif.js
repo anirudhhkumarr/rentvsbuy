@@ -48,13 +48,13 @@ class WhatIfAnalysis {
             { id: 'interestMax', display: 'interestMaxValue', format: (v) => `${parseFloat(v).toFixed(2)}%` },
             { id: 'priceMin', display: 'priceMinValue', format: (v) => `$${(parseFloat(v) / 1000000).toFixed(1)}M` },
             { id: 'priceMax', display: 'priceMaxValue', format: (v) => `$${(parseFloat(v) / 1000000).toFixed(1)}M` },
-            { id: 'downMin', display: 'downMinValue', format: (v) => `${parseInt(v)}%` },
-            { id: 'downMax', display: 'downMaxValue', format: (v) => `${parseInt(v)}%` },
+            { id: 'downMin', display: 'downMinValue', format: (v) => parseFloat(v) >= 1000000 ? `$${(parseFloat(v) / 1000000).toFixed(1)}M` : `$${(parseFloat(v) / 1000).toFixed(0)}K` },
+            { id: 'downMax', display: 'downMaxValue', format: (v) => parseFloat(v) >= 1000000 ? `$${(parseFloat(v) / 1000000).toFixed(1)}M` : `$${(parseFloat(v) / 1000).toFixed(0)}K` },
 
             // Single value sliders
             { id: 'interestSingle', display: 'interestSingleValue', format: (v) => `${parseFloat(v).toFixed(2)}%` },
             { id: 'priceSingle', display: 'priceSingleValue', format: (v) => `$${(parseFloat(v) / 1000000).toFixed(2)}M` },
-            { id: 'downSingle', display: 'downSingleValue', format: (v) => `${parseInt(v)}%` },
+            { id: 'downSingle', display: 'downSingleValue', format: (v) => parseFloat(v) >= 1000000 ? `$${(parseFloat(v) / 1000000).toFixed(1)}M` : `$${(parseFloat(v) / 1000).toFixed(0)}K` },
             { id: 'horizonSingle', display: 'horizonSingleValue', format: (v) => `${parseInt(v)} years` },
 
             // Range parameter sliders for horizon
@@ -137,7 +137,7 @@ class WhatIfAnalysis {
         // Setup double-range sliders for each parameter
         this.setupDoubleSlider('interest', '%');
         this.setupDoubleSlider('price', '$');
-        this.setupDoubleSlider('down', '%');
+        this.setupDoubleSlider('down', '$');
         this.setupDoubleSlider('horizon', ' years');
     }
 
@@ -174,9 +174,9 @@ class WhatIfAnalysis {
             }
 
             // Format values based on parameter type
-            if (paramName === 'price') {
-                minValue.textContent = '$' + (minVal / 1000000).toFixed(1) + 'M';
-                maxValue.textContent = '$' + (maxVal / 1000000).toFixed(1) + 'M';
+            if (paramName === 'price' || paramName === 'down') {
+                minValue.textContent = minVal >= 1000000 ? '$' + (minVal / 1000000).toFixed(1) + 'M' : '$' + (minVal / 1000).toFixed(0) + 'K';
+                maxValue.textContent = maxVal >= 1000000 ? '$' + (maxVal / 1000000).toFixed(1) + 'M' : '$' + (maxVal / 1000).toFixed(0) + 'K';
             } else if (suffix === '%') {
                 minValue.textContent = minVal + '%';
                 maxValue.textContent = maxVal + '%';
@@ -208,7 +208,7 @@ class WhatIfAnalysis {
 
         // Ensure X and Y axes are different
         if (xAxis.value === yAxis.value) {
-            const allOptions = ['mortgageRate', 'homePrice', 'downPaymentPercent'];
+            const allOptions = ['mortgageRate', 'homePrice', 'downPayment'];
             const currentX = xAxis.value;
             const availableForY = allOptions.filter(opt => opt !== currentX);
             yAxis.value = availableForY[0];
@@ -226,7 +226,7 @@ class WhatIfAnalysis {
         const paramMap = {
             'mortgageRate': 'interest',
             'homePrice': 'price',
-            'downPaymentPercent': 'down',
+            'downPayment': 'down',
             'investingHorizon': 'horizon'
         };
 
@@ -348,7 +348,7 @@ class WhatIfAnalysis {
             const paramMap = {
                 'mortgageRate': { min: 'interestMin', max: 'interestMax' },
                 'homePrice': { min: 'priceMin', max: 'priceMax' },
-                'downPaymentPercent': { min: 'downMin', max: 'downMax' },
+                'downPayment': { min: 'downMin', max: 'downMax' },
                 'investingHorizon': { min: 'horizonMin', max: 'horizonMax' }
             };
 
@@ -378,7 +378,7 @@ class WhatIfAnalysis {
             const singleMap = {
                 'mortgageRate': 'interestSingle',
                 'homePrice': 'priceSingle',
-                'downPaymentPercent': 'downSingle',
+                'downPayment': 'downSingle',
                 'investingHorizon': 'horizonSingle'
             };
 
@@ -508,7 +508,7 @@ class WhatIfAnalysis {
         let scenario = {
             homePrice: 1750000,
             loanTerm: baseScenario.loanTerm,
-            downPaymentPercent: 30,
+            downPayment: 525000,
             mortgageRate: 6.25,
             mortgagePoints: 0,
             taxMaintenanceRate: baseScenario.taxMaintenanceRate,
@@ -522,7 +522,7 @@ class WhatIfAnalysis {
         };
 
         // Override non-selected parameters with their single values FIRST
-        const allParams = ['mortgageRate', 'homePrice', 'downPaymentPercent', 'investingHorizon'];
+        const allParams = ['mortgageRate', 'homePrice', 'downPayment', 'investingHorizon'];
         const selectedParams = [xParam, yParam];
 
         allParams.forEach(param => {
@@ -545,7 +545,6 @@ class WhatIfAnalysis {
         });
 
         // Calculate derived values
-        scenario.downPayment = Math.round(scenario.homePrice * scenario.downPaymentPercent / 100);
         scenario.loanAmount = scenario.homePrice - scenario.downPayment;
         scenario.propertyTaxAmount = Math.round(scenario.homePrice * scenario.taxMaintenanceRate / 100 * 100) / 100;
         scenario.closingCostsAmount = Math.round(scenario.homePrice * 0.03);
@@ -662,7 +661,7 @@ class WhatIfAnalysis {
         const paramLabels = {
             'mortgageRate': 'Interest Rate (%)',
             'homePrice': 'Home Price ($)',
-            'downPaymentPercent': 'Down Payment (%)',
+            'downPayment': 'Down Payment ($)',
             'loanTerm': 'Loan Term (years)'
         };
 
@@ -721,17 +720,17 @@ class WhatIfAnalysis {
                                 let xLabel = paramLabels[xParam] + ': ';
                                 let yLabel = paramLabels[yParam] + ': ';
 
-                                if (xParam === 'homePrice') {
+                                if (xParam === 'homePrice' || xParam === 'downPayment') {
                                     xLabel += '$' + (point.parsed.x / 1000000).toFixed(2) + 'M';
-                                } else if (xParam === 'mortgageRate' || xParam === 'downPaymentPercent') {
+                                } else if (xParam === 'mortgageRate') {
                                     xLabel += point.parsed.x.toFixed(2) + '%';
                                 } else {
                                     xLabel += point.parsed.x;
                                 }
 
-                                if (yParam === 'homePrice') {
+                                if (yParam === 'homePrice' || yParam === 'downPayment') {
                                     yLabel += '$' + (point.parsed.y / 1000000).toFixed(2) + 'M';
-                                } else if (yParam === 'mortgageRate' || yParam === 'downPaymentPercent') {
+                                } else if (yParam === 'mortgageRate') {
                                     yLabel += point.parsed.y.toFixed(2) + '%';
                                 } else {
                                     yLabel += point.parsed.y;
@@ -844,14 +843,14 @@ class WhatIfAnalysis {
                             { id: 'interestMax', format: (v) => `${parseFloat(v).toFixed(2)}%` },
                             { id: 'priceMin', format: (v) => `$${(parseFloat(v) / 1000000).toFixed(2)}M` },
                             { id: 'priceMax', format: (v) => `$${(parseFloat(v) / 1000000).toFixed(2)}M` },
-                            { id: 'downMin', format: (v) => `${parseInt(v)}%` },
-                            { id: 'downMax', format: (v) => `${parseInt(v)}%` },
-                            { id: 'termMin', format: (v) => `${parseInt(v)}` },
-                            { id: 'termMax', format: (v) => `${parseInt(v)}` },
+                            { id: 'downMin', format: (v) => parseFloat(v) >= 1000000 ? `$${(parseFloat(v) / 1000000).toFixed(1)}M` : `$${(parseFloat(v) / 1000).toFixed(0)}K` },
+                            { id: 'downMax', format: (v) => parseFloat(v) >= 1000000 ? `$${(parseFloat(v) / 1000000).toFixed(1)}M` : `$${(parseFloat(v) / 1000).toFixed(0)}K` },
+                            { id: 'horizonMin', format: (v) => `${parseInt(v)} years` },
+                            { id: 'horizonMax', format: (v) => `${parseInt(v)} years` },
                             { id: 'interestSingle', format: (v) => `${parseFloat(v).toFixed(2)}%` },
                             { id: 'priceSingle', format: (v) => `$${(parseFloat(v) / 1000000).toFixed(2)}M` },
-                            { id: 'downSingle', format: (v) => `${parseInt(v)}%` },
-                            { id: 'termSingle', format: (v) => `${parseInt(v)}` }
+                            { id: 'downSingle', format: (v) => parseFloat(v) >= 1000000 ? `$${(parseFloat(v) / 1000000).toFixed(1)}M` : `$${(parseFloat(v) / 1000).toFixed(0)}K` },
+                            { id: 'horizonSingle', format: (v) => `${parseInt(v)} years` }
                         ];
 
                         const config = sliderConfigs.find(c => c.id === key);

@@ -16,9 +16,9 @@
     <div class="analysis-container">
         <div class="navigation">
             <a href="index.html" class="nav-link">
-                <i class="fas fa-calculator"></i> Main Calculator
+                <i class="fas fa-calculator"></i> Calculator
             </a>
-            <a href="whatif.html" class="nav-link" style="background: #667eea; color: white;">
+            <a href="whatif.html" class="nav-link" style="background: white; color: #667eea;">
                 <i class="fas fa-chart-line"></i> What-If Analysis
             </a>
         </div>
@@ -37,7 +37,7 @@
                     <select id="xAxisParameter">
                         <option value="mortgageRate">Interest Rate (%)</option>
                         <option value="homePrice">Home Price ($)</option>
-                        <option value="downPaymentPercent">Down Payment (%)</option>
+                        <option value="downPayment">Down Payment ($)</option>
                         <option value="investingHorizon">Investing Horizon (years)</option>
                     </select>
                 </div>
@@ -46,7 +46,7 @@
                     <select id="yAxisParameter">
                         <option value="homePrice">Home Price ($)</option>
                         <option value="mortgageRate">Interest Rate (%)</option>
-                        <option value="downPaymentPercent">Down Payment (%)</option>
+                        <option value="downPayment">Down Payment ($)</option>
                         <option value="investingHorizon">Investing Horizon (years)</option>
                     </select>
                 </div>
@@ -90,9 +90,9 @@
                             </div>
                             <div class="double-range-slider" id="priceDoubleSlider">
                                 <div class="track" id="priceTrack"></div>
-                                <input type="range" id="priceMin" min="500000" max="5000000" value="1000000"
+                                <input type="range" id="priceMin" min="10000" max="5000000" value="1000000"
                                     step="50000">
-                                <input type="range" id="priceMax" min="500000" max="5000000" value="3000000"
+                                <input type="range" id="priceMax" min="10000" max="5000000" value="3000000"
                                     step="50000">
                             </div>
                         </div>
@@ -103,19 +103,20 @@
                 <div class="parameter-group" id="downPaymentGroup">
                     <h4><i class="fas fa-piggy-bank"></i> Down Payment</h4>
                     <div class="single-slider-container">
-                        <label><span id="downSingleValue">30%</span></label>
-                        <input type="range" id="downSingle" min="5" max="100" value="30" step="1" class="slider">
+                        <label><span id="downSingleValue">$525K</span></label>
+                        <input type="range" id="downSingle" min="10000" max="2000000" value="525000" step="10000"
+                            class="slider">
                     </div>
                     <div class="range-inputs-with-sliders" id="downRangeContainer" style="display: none;">
                         <div class="double-range-container">
                             <div class="double-range-values">
-                                <span id="downMinValue">10%</span>
-                                <span id="downMaxValue">40%</span>
+                                <span id="downMinValue">$100K</span>
+                                <span id="downMaxValue">$1.0M</span>
                             </div>
                             <div class="double-range-slider" id="downDoubleSlider">
                                 <div class="track" id="downTrack"></div>
-                                <input type="range" id="downMin" min="5" max="100" value="10" step="1">
-                                <input type="range" id="downMax" min="5" max="100" value="40" step="1">
+                                <input type="range" id="downMin" min="10000" max="2000000" value="100000" step="10000">
+                                <input type="range" id="downMax" min="10000" max="2000000" value="1000000" step="10000">
                             </div>
                         </div>
 

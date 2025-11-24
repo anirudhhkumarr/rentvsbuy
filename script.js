@@ -63,7 +63,7 @@ class RentBuyUI {
     loadSavedValues() {
         // List of all input fields to save/restore
         const inputFields = [
-            'homePrice', 'downPaymentPercent', 'loanTerm', 'mortgageRate', 
+            'homePrice', 'downPaymentPercent', 'loanTerm', 'mortgageRate',
             'mortgagePoints', 'monthlyRent', 'rentIncrease', 'propertyReassessment',
             'propertyTax', 'closingCosts', 'homeReturn', 'stockReturn', 'inflation'
         ];
@@ -81,7 +81,7 @@ class RentBuyUI {
     saveValues() {
         // List of all input fields to save
         const inputFields = [
-            'homePrice', 'downPaymentPercent', 'loanTerm', 'mortgageRate', 
+            'homePrice', 'downPaymentPercent', 'loanTerm', 'mortgageRate',
             'mortgagePoints', 'monthlyRent', 'rentIncrease', 'propertyReassessment',
             'propertyTax', 'closingCosts', 'homeReturn', 'stockReturn', 'inflation'
         ];
@@ -98,35 +98,35 @@ class RentBuyUI {
     setupCustomSpinners() {
         // Add custom spinners to all number inputs (except readonly)
         const numberInputs = document.querySelectorAll('input[type="number"]:not([readonly])');
-        
+
         numberInputs.forEach(input => {
             if (input.closest('.input-spinner-wrapper')) return; // Already wrapped
-            
+
             const isPercentageField = input.closest('.input-with-suffix');
             const isPrefixField = input.closest('.input-with-prefix');
-            
+
             // Create wrapper div
             const wrapper = document.createElement('div');
             wrapper.className = 'input-spinner-wrapper';
-            
+
             // Handle different field types
             if (isPercentageField) {
                 // Insert wrapper before input and move input inside
                 input.parentNode.insertBefore(wrapper, input);
                 wrapper.appendChild(input);
-                
+
                 // Create spinner with adjusted positioning for percentage fields
                 const spinner = document.createElement('div');
                 spinner.className = 'number-input-spinner percentage-spinner';
-                
+
                 const upBtn = document.createElement('div');
                 upBtn.className = 'spinner-btn up';
                 upBtn.innerHTML = '▲';
-                
+
                 const downBtn = document.createElement('div');
                 downBtn.className = 'spinner-btn down';
                 downBtn.innerHTML = '▼';
-                
+
                 spinner.appendChild(upBtn);
                 spinner.appendChild(downBtn);
                 wrapper.appendChild(spinner);
@@ -134,19 +134,19 @@ class RentBuyUI {
                 // Insert wrapper before input and move input inside
                 input.parentNode.insertBefore(wrapper, input);
                 wrapper.appendChild(input);
-                
+
                 // Create spinner with adjusted positioning for prefix fields
                 const spinner = document.createElement('div');
                 spinner.className = 'number-input-spinner prefix-spinner';
-                
+
                 const upBtn = document.createElement('div');
                 upBtn.className = 'spinner-btn up';
                 upBtn.innerHTML = '▲';
-                
+
                 const downBtn = document.createElement('div');
                 downBtn.className = 'spinner-btn down';
                 downBtn.innerHTML = '▼';
-                
+
                 spinner.appendChild(upBtn);
                 spinner.appendChild(downBtn);
                 wrapper.appendChild(spinner);
@@ -154,33 +154,33 @@ class RentBuyUI {
                 // Regular input handling
                 input.parentNode.insertBefore(wrapper, input);
                 wrapper.appendChild(input);
-                
+
                 const spinner = document.createElement('div');
                 spinner.className = 'number-input-spinner';
-                
+
                 const upBtn = document.createElement('div');
                 upBtn.className = 'spinner-btn up';
                 upBtn.innerHTML = '▲';
-                
+
                 const downBtn = document.createElement('div');
                 downBtn.className = 'spinner-btn down';
                 downBtn.innerHTML = '▼';
-                
+
                 spinner.appendChild(upBtn);
                 spinner.appendChild(downBtn);
                 wrapper.appendChild(spinner);
             }
-            
+
             // Add functionality to the buttons (get references from the created spinner)
             const finalUpBtn = wrapper.querySelector('.spinner-btn.up');
             const finalDownBtn = wrapper.querySelector('.spinner-btn.down');
-            
+
             finalUpBtn.addEventListener('click', () => {
                 const step = parseFloat(input.step) || 1;
                 const max = parseFloat(input.max);
                 const current = parseFloat(input.value.replace(/,/g, '')) || 0;
                 const newValue = current + step;
-                
+
                 if (!max || newValue <= max) {
                     // Round to avoid floating point precision issues
                     const decimalPlaces = (step.toString().split('.')[1] || '').length;
@@ -189,13 +189,13 @@ class RentBuyUI {
                     input.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             });
-            
+
             finalDownBtn.addEventListener('click', () => {
                 const step = parseFloat(input.step) || 1;
                 const min = parseFloat(input.min);
                 const current = parseFloat(input.value.replace(/,/g, '')) || 0;
                 const newValue = current - step;
-                
+
                 if (!min || newValue >= min) {
                     // Round to avoid floating point precision issues
                     const decimalPlaces = (step.toString().split('.')[1] || '').length;
@@ -212,7 +212,7 @@ class RentBuyUI {
     setupCollapsible() {
         const collapsibleHeader = document.querySelector('.collapsible-header');
         const collapsiblePanel = document.querySelector('.input-panel.secondary');
-        
+
         if (collapsibleHeader && collapsiblePanel) {
             collapsibleHeader.addEventListener('click', () => {
                 collapsiblePanel.classList.toggle('collapsed');
@@ -272,23 +272,23 @@ class RentBuyUI {
     updateCalculatedFields() {
         // Calculate down payment amount from percentage
         const downPaymentAmount = this.homePrice.value * (this.downPaymentPercent.value / 100);
-        
+
         // Update loan and down payment displays plus hidden fields
         const loanAmount = this.homePrice.value - downPaymentAmount;
         this.loanAmountDisplay.textContent = this.formatCurrency(loanAmount);
         this.loanAmount.value = loanAmount;
         this.downPaymentDisplay.textContent = this.formatCurrency(downPaymentAmount);
         this.downPayment.value = downPaymentAmount;
-        
+
         // Update annual rent display and hidden field
         const annualRent = this.monthlyRent.value * 12;
         this.annualRentDisplay.textContent = this.formatCurrency(annualRent);
         this.annualRent.value = annualRent;
-        
+
         // Update property tax amount
         const propertyTaxAmount = this.homePrice.value * (this.propertyTax.value / 100);
         this.propertyTaxAmount.value = propertyTaxAmount;
-        
+
         // Update closing costs amount
         const closingCostsAmount = this.homePrice.value * (this.closingCosts.value / 100);
         this.closingCostsAmount.value = closingCostsAmount;
@@ -297,15 +297,15 @@ class RentBuyUI {
     calculate() {
         const inputs = this.getInputs();
         const results = this.calculator.calculateAll(inputs);
-        
+
         // Store results for chart updates
         this.lastResults = results;
         this.updateYearSlider(results);
-        
+
         this.updateDisplay(results);
         this.updateCharts(results);
         this.updateBreakdownTable(results);
-        
+
         return results;
     }
 
@@ -315,7 +315,7 @@ class RentBuyUI {
         const homePrice = parseFloat(this.homePrice.value.replace(/,/g, '')) || 1750000;
         const downPaymentPercent = parseFloat(this.downPaymentPercent.value) || 30;
         const downPayment = homePrice * (downPaymentPercent / 100);
-        
+
         return {
             homePrice: homePrice,
             downPayment: downPayment,
@@ -366,7 +366,7 @@ class RentBuyUI {
 
     updateCostComparisonChart(results) {
         const ctx = document.getElementById('costComparisonChart').getContext('2d');
-        
+
         if (this.costComparisonChart) {
             this.costComparisonChart.destroy();
         }
@@ -409,14 +409,14 @@ class RentBuyUI {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return '$' + (value / 1000).toFixed(0) + 'K';
                             }
                         }
                     },
                     x: {
                         ticks: {
-                            callback: function(value, index) {
+                            callback: function (value, index) {
                                 return results.years[index] || value;
                             }
                         }
@@ -512,7 +512,7 @@ class RentBuyUI {
 
     updateMonthlyLineChart(results) {
         const ctx = document.getElementById('monthlyLineChart').getContext('2d');
-        
+
         if (this.monthlyLineChart) {
             this.monthlyLineChart.destroy();
         }
@@ -520,24 +520,24 @@ class RentBuyUI {
         // Calculate monthly costs for each year, using all data points
         const inputs = this.getInputs();
         const monthlyMortgagePayment = this.calculator.calculateMonthlyPayment(inputs);
-        
+
         const filteredYears = results.years;
         const buyMonthlyCosts = [];
         const rentMonthlyCosts = [];
-        
+
         for (let i = 0; i < results.years.length; i++) {
             const year = results.years[i];
-            
+
             // Buy costs: mortgage + property tax/maintenance
             const monthlyPropertyTax = (results.taxMaintenances[i] || 0) / 12;
-            
+
             // Mortgage payment stops after loan term
             const mortgagePayment = year <= inputs.loanTerm ? monthlyMortgagePayment : 0;
             const totalBuyCost = mortgagePayment + monthlyPropertyTax;
-            
+
             // Rent costs
             const monthlyRent = (results.rentExpenses[i] || 0) / 12;
-            
+
             buyMonthlyCosts.push(totalBuyCost);
             rentMonthlyCosts.push(monthlyRent);
         }
@@ -575,14 +575,14 @@ class RentBuyUI {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return '$' + value.toLocaleString();
                             }
                         }
                     },
                     x: {
                         ticks: {
-                            callback: function(value, index) {
+                            callback: function (value, index) {
                                 return results.years[index] || value;
                             }
                         }
@@ -594,7 +594,7 @@ class RentBuyUI {
 
     updateCumulativeCostChart(results) {
         const ctx = document.getElementById('cumulativeCostChart').getContext('2d');
-        
+
         if (this.cumulativeCostChart) {
             this.cumulativeCostChart.destroy();
         }
@@ -608,7 +608,7 @@ class RentBuyUI {
 
         for (let year = 1; year <= results.years.length; year++) {
             const yearIndex = year - 1;
-            
+
             // Calculate monthly buy costs for this year
             let monthlyBuyCost = 0;
             if (results.loans[yearIndex] > 0) {
@@ -619,19 +619,19 @@ class RentBuyUI {
             monthlyBuyCost += (results.taxMaintenances[yearIndex] || 0) / 12;
             monthlyBuyCost += (inputs.insurance || 0) / 12;
             monthlyBuyCost += (inputs.maintenance || 0) / 12;
-            
+
             // Add down payment to first year
             if (year === 1) {
                 buyCumulative += inputs.downPayment;
             }
-            
+
             // Calculate monthly rent cost for this year
             const monthlyRentCost = (results.rentExpenses[yearIndex] || 0) / 12;
-            
+
             // Add to cumulative totals (multiply by 12 to get annual, then add to cumulative)
             buyCumulative += monthlyBuyCost * 12;
             rentCumulative += monthlyRentCost * 12;
-            
+
             buyMonthlyCosts.push(buyCumulative);
             rentMonthlyCosts.push(rentCumulative);
         }
@@ -669,14 +669,14 @@ class RentBuyUI {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return '$' + (value / 1000).toFixed(0) + 'K';
                             }
                         }
                     },
                     x: {
                         ticks: {
-                            callback: function(value, index) {
+                            callback: function (value, index) {
                                 return results.years[index] || value;
                             }
                         }
@@ -688,10 +688,10 @@ class RentBuyUI {
 
     updateMonthlyBreakdownChart(results) {
         if (!results) return;
-        
+
         // Chart element removed - skip this method
         return;
-        
+
         if (this.monthlyBreakdownChart) {
             this.monthlyBreakdownChart.destroy();
         }
@@ -699,13 +699,13 @@ class RentBuyUI {
         // Get selected year (1-based)
         const selectedYear = this.yearSlider ? parseInt(this.yearSlider.value) : 1;
         const yearIndex = selectedYear - 1; // Convert to 0-based index
-        
+
         // Calculate costs for the selected year
         const inputs = this.getInputs();
-        
+
         // Base monthly mortgage payment (principal + interest) - stays constant
         const monthlyMortgagePayment = this.calculator.calculateMonthlyPayment(inputs);
-        
+
         if (this.showBuyCosts) {
             // BUY COSTS BREAKDOWN
             // Property tax and maintenance from calculated results
@@ -733,7 +733,7 @@ class RentBuyUI {
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     const value = context.parsed;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = ((value / total) * 100).toFixed(1);
@@ -771,7 +771,7 @@ class RentBuyUI {
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     const value = context.parsed;
                                     return `Monthly Rent: $${value.toLocaleString()}`;
                                 }
@@ -788,17 +788,17 @@ class RentBuyUI {
             console.log('breakdownTableBody element not found');
             return;
         }
-        
+
         this.breakdownTableBody.innerHTML = '';
 
         for (let i = 0; i < results.years.length; i++) {
             const row = document.createElement('tr');
+            const monthlyPremium = results.premiums[i] / (results.years[i] * 12);
             row.innerHTML = `
                 <td>${results.years[i]}</td>
                 <td>${this.formatCurrency(results.buyReals[i])}</td>
-                <td>${this.formatCurrency(results.rentValues[i])}</td>
                 <td>${this.formatCurrency(results.rentReals[i])}</td>
-                <td>${this.formatCurrency(results.premiums[i])}</td>
+                <td>${this.formatCurrency(monthlyPremium)}</td>
             `;
             this.breakdownTableBody.appendChild(row);
         }

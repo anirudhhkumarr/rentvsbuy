@@ -25,8 +25,8 @@ body {
 .nav-link {
     display: inline-block;
     padding: 10px 20px;
-    background: #f8f9fa;
-    color: #495057;
+    background: #667eea;
+    color: white;
     text-decoration: none;
     border-radius: 6px;
     margin: 0 10px;
@@ -34,7 +34,7 @@ body {
 }
 
 .nav-link:hover {
-    background: #e9ecef;
+    background: #5568d3;
 }
 
 header {
@@ -46,7 +46,7 @@ header {
 header h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 header p {
@@ -73,14 +73,15 @@ header p {
 }
 
 .main-content {
-    min-width: 0; /* Allows content to shrink below its default minimum */
+    min-width: 0;
+    /* Allows content to shrink below its default minimum */
 }
 
 .input-panel {
     background: white;
     padding: 25px;
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
 }
 
@@ -148,11 +149,12 @@ header p {
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    min-width: 30px;
+    min-width: 45px;
+    width: 45px;
     justify-content: center;
 }
 
-.input-with-suffix input:focus + .suffix {
+.input-with-suffix input:focus+.suffix {
     border-color: #667eea;
     background: #e7f0ff;
 }
@@ -361,7 +363,7 @@ input[type="number"] {
     background: white;
     border-radius: 15px;
     padding: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .results-explanation {
@@ -403,7 +405,7 @@ input[type="number"] {
 
 .summary-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .card-icon {
@@ -521,7 +523,7 @@ input[type="number"] {
 .toggle-btn.active {
     background: #667eea;
     color: white;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .toggle-btn:hover:not(.active) {
@@ -570,7 +572,7 @@ input[type="number"] {
     background: #667eea;
     cursor: pointer;
     border: 2px solid #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .year-slider::-moz-range-thumb {
@@ -580,7 +582,7 @@ input[type="number"] {
     background: #667eea;
     cursor: pointer;
     border: 2px solid #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .detailed-breakdown {
@@ -606,10 +608,12 @@ table {
     background: white;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    table-layout: fixed;
 }
 
-th, td {
+th,
+td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #dee2e6;
@@ -636,25 +640,25 @@ tr:hover {
     .container {
         padding: 15px;
     }
-    
+
     header h1 {
         font-size: 2rem;
     }
-    
+
     .main-layout {
         grid-template-columns: 1fr;
         gap: 20px;
     }
-    
+
     .summary-cards {
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
     }
-    
+
     .charts-section {
         grid-template-columns: 1fr;
     }
-    
+
     .input-panel {
         padding: 20px;
     }
