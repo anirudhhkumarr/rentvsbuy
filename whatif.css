@@ -107,10 +107,9 @@
     background: #667eea;
     pointer-events: auto;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: all 0.2s;
     border: none;
-    margin-top: -7px;
 }
 
 .double-range-slider input[type="range"]::-webkit-slider-thumb:hover {
@@ -132,7 +131,7 @@
     pointer-events: auto;
     cursor: pointer;
     border: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     margin-top: -7px;
 }
 
@@ -337,8 +336,13 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .slider {
@@ -359,7 +363,7 @@
     border-radius: 50%;
     background: #667eea;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: all 0.2s;
 }
 
@@ -375,7 +379,7 @@
     background: #667eea;
     cursor: pointer;
     border: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .slider:focus {
