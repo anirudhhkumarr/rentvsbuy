@@ -42,6 +42,7 @@ class WhatIfAnalysis {
             { id: 'baseInflation', display: 'baseInflationValue', format: (v) => `${parseFloat(v).toFixed(1)}%` },
             { id: 'baseLoanTerm', display: 'baseLoanTermValue', format: (v) => `${parseInt(v)}` },
             { id: 'investingHorizon', display: 'investingHorizonValue', format: (v) => `${parseInt(v)}` },
+            { id: 'baseClosingCost', display: 'baseClosingCostValue', format: (v) => `${parseFloat(v).toFixed(1)}%` },
 
             // Range parameter sliders
             { id: 'interestMin', display: 'interestMinValue', format: (v) => `${parseFloat(v).toFixed(2)}%` },
@@ -399,7 +400,8 @@ class WhatIfAnalysis {
             stockReturn: parseFloat(document.getElementById('baseStockReturn').value),
             inflation: parseFloat(document.getElementById('baseInflation').value),
             loanTerm: parseInt(document.getElementById('baseLoanTerm').value),
-            investingHorizon: parseInt(document.getElementById('investingHorizon').value)
+            investingHorizon: parseInt(document.getElementById('investingHorizon').value),
+            closingCostRate: parseFloat(document.getElementById('baseClosingCost').value)
         };
 
         // Validate all base scenario values
@@ -518,7 +520,8 @@ class WhatIfAnalysis {
             homeReturn: baseScenario.homeReturn,
             stockReturn: baseScenario.stockReturn,
             inflation: baseScenario.inflation,
-            investingHorizon: baseScenario.investingHorizon // Will be overridden if selected as axis parameter
+            investingHorizon: baseScenario.investingHorizon, // Will be overridden if selected as axis parameter
+            closingCostRate: baseScenario.closingCostRate
         };
 
         // Override non-selected parameters with their single values FIRST
