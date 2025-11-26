@@ -54,35 +54,61 @@ class RentBuyCalculator {
             premiums: []
         };
 
+        // Constants for Tax Logic (Hardcoded per user request)
+        const TAX_RATE = 0.371; // 20% Fed + 13.3% CA + 3.8% NIIT
+        const CAPITAL_GAINS_EXCLUSION = 500000; // Married Filing Jointly
+        const STANDARD_DEDUCTION = 29200; // 2024 Married Filing Jointly
+        const SALT_CAP = 10000; // State and Local Tax Cap
+        const MID_LOAN_LIMIT = 750000; // TCJA Mortgage Interest Deduction Limit
+
         // Calculate monthly mortgage payment (C12 reference)
         const monthlyPayment = this.calculateMonthlyPayment(inputs);
         const yearlyPayment = monthlyPayment * 12;
 
         // Initial values (Row 3 values) - Year 1
-        // E3: =B10, where B10 is the loan amount after down payment and any adjustments
-        let previousLoan = inputs.homePrice - inputs.downPayment; // E3: =B10 calculation
-        let previousInterest = (inputs.mortgageRate / 100) * previousLoan; // F3: =$B$7*E3
-        let previousTaxableValue = inputs.homePrice; // G3: =B3
-        let previousTaxMaintenance = previousTaxableValue * (inputs.taxMaintenanceRate / 100); // H3: =G3*$B$13
-        let previousHomeValue = inputs.homePrice * (1 + inputs.homeReturn / 100); // I3: =B3*(1+$B$20)
-        let previousSellingPrice = previousHomeValue * 0.97; // J3: =I3*0.97
-        let previousCapitalGain = Math.max(0, previousSellingPrice - previousTaxableValue); // K3: =max(0,J3-G3)
-        let previousTax = Math.max(0, previousCapitalGain - 500000) * 0.33; // L3: =max(0,K3-500000)*0.33 (20% federal + 13% California)
-        let previousBuyValue = previousSellingPrice - Math.max(0, previousLoan + previousInterest - yearlyPayment) - previousTax; // M3: =J3-E3-L3
-        let previousBuyReal = previousBuyValue / Math.pow(1 + inputs.inflation / 100, 1); // N3: =M3/(1+$B$22)^D3
-        
-        // For rent side, start with down payment amount invested
-        let previousRentStartBalance = inputs.downPayment; // P3: =B9+B8
-        let previousRentReturn = previousRentStartBalance * (inputs.stockReturn / 100); // Q3: =(P3)*$B$21
-        let previousRentExpense = inputs.rent; // R3: =B16
-        let previousNewInvestment = (previousLoan > 0 ? yearlyPayment : 0) - previousRentExpense + previousTaxMaintenance; // S3: =IF(E3>0,-$C$12,0)-R3+H3 (C12 is negative, so -$C$12 is positive)
-        let previousYearEndBalance = previousRentStartBalance + previousRentReturn + previousNewInvestment; // T3: =P3+Q3+S3
-        let previousTotalInvested = inputs.downPayment + previousNewInvestment; // U3: =$P$3+sum($S$3:S3)
-        let previousRentTax = (previousYearEndBalance - previousTotalInvested) * 0.368; // V3: =(T3-U3)*0.368 (20% federal + 13% California + 3.8% NIIT)
-        let previousRentValue = previousYearEndBalance - previousRentTax; // W3: =T3-V3
-        let previousRentReal = previousRentValue / Math.pow(1 + inputs.inflation / 100, 1); // X3: =W3/(1+$B$22)^D3
+        let previousLoan = inputs.homePrice - inputs.downPayment;
+        let previousInterest = (inputs.mortgageRate / 100) * previousLoan;
+        let previousTaxableValue = inputs.homePrice;
+        let previousTaxMaintenance = previousTaxableValue * (inputs.taxMaintenanceRate / 100);
+        let previousHomeValue = inputs.homePrice * (1 + inputs.homeReturn / 100);
+        let previousSellingPrice = previousHomeValue * (1 - inputs.closingCostRate / 100);
 
-        // Calculator initialized and ready for web interface
+        // Capital Gains Tax Logic
+        // Basis is Purchase Price (inputs.homePrice), not Taxable Value
+        let previousCapitalGain = Math.max(0, previousSellingPrice - inputs.homePrice);
+        // Apply Exclusion to entire gain
+        let previousTaxableGain = Math.max(0, previousCapitalGain - CAPITAL_GAINS_EXCLUSION);
+        let previousTax = previousTaxableGain * TAX_RATE;
+
+        let previousBuyValue = previousSellingPrice - Math.max(0, previousLoan + previousInterest - yearlyPayment) - previousTax;
+        let previousBuyReal = previousBuyValue / Math.pow(1 + inputs.inflation / 100, 1);
+
+        // Tax Savings Calculation (Year 1)
+        // Deductible Interest: Pro-rated if loan > $750k
+        let deductibleInterest = previousInterest * Math.min(1, MID_LOAN_LIMIT / (inputs.homePrice - inputs.downPayment));
+        // Itemized Deduction: Deductible Interest + SALT Cap
+        let totalItemized = deductibleInterest + SALT_CAP;
+        // Incremental Deduction: Amount over Standard Deduction
+        let incrementalDeduction = Math.max(0, totalItemized - STANDARD_DEDUCTION);
+        let taxSavings = incrementalDeduction * TAX_RATE;
+
+        // For rent side, start with down payment amount invested
+        let previousRentStartBalance = inputs.downPayment;
+        let previousRentReturn = previousRentStartBalance * (inputs.stockReturn / 100);
+        let previousRentExpense = inputs.rent;
+
+        // New Investment Calculation
+        // Buyer's Cost = Mortgage + Tax/Maint - Tax Savings
+        // Renter's Surplus = Buyer's Cost - Rent
+        // Note: yearlyPayment includes Principal + Interest
+        let buyerAnnualCost = (previousLoan > 0 ? yearlyPayment : 0) + previousTaxMaintenance - taxSavings;
+        let previousNewInvestment = buyerAnnualCost - previousRentExpense;
+
+        let previousYearEndBalance = previousRentStartBalance + previousRentReturn + previousNewInvestment;
+        let previousTotalInvested = inputs.downPayment + previousNewInvestment;
+        let previousRentTax = (previousYearEndBalance - previousTotalInvested) * TAX_RATE;
+        let previousRentValue = previousYearEndBalance - previousRentTax;
+        let previousRentReal = previousRentValue / Math.pow(1 + inputs.inflation / 100, 1);
 
         // Store initial values (Year 1)
         results.years.push(1);
@@ -107,72 +133,52 @@ class RentBuyCalculator {
         results.rentReals.push(previousRentReal);
         results.premiums.push(previousRentReal - previousBuyReal);
 
-        // Calculate number of years: use investingHorizon if provided (can be less or more than loanTerm), otherwise default to loanTerm + 10
         const maxYears = inputs.investingHorizon ? inputs.investingHorizon : inputs.loanTerm + 10;
 
         for (let year = 2; year <= maxYears; year++) {
-            // Column E: Loan (Excel formula: =max(0,E{row-1}+F{row-1}+$C$12))
-            // Since C12 is negative, this is: max(0, previous_loan + previous_interest - yearly_payment)
             const loan = Math.max(0, previousLoan + previousInterest - yearlyPayment);
-            
-            // Column F: Interest (Excel formula: =$B$7*E{row})
             const interest = (inputs.mortgageRate / 100) * loan;
-            
-            // Column G: Taxable value (Excel formula: =G{row-1}*(1+$B$18))
             const taxableValue = previousTaxableValue * (1 + inputs.propertyReassessmentRate / 100);
-            
-            // Column H: Tax + Maintenance (Excel formula: =G{row}*$B$13)
             const taxMaintenance = taxableValue * (inputs.taxMaintenanceRate / 100);
-            
-            // Column I: Home value (Excel formula: =I{row-1}*(1+$B$20))
             const homeValue = previousHomeValue * (1 + inputs.homeReturn / 100);
-            
-            // Column J: Selling price (Excel formula: =I{row}*0.97)
-            const sellingPrice = homeValue * 0.97;
-            
-            // Column K: Capital gain (Excel formula: =max(0,J{row}-G{row}))
-            const capitalGain = Math.max(0, sellingPrice - taxableValue);
-            
-            // Column L: Tax (Excel formula: =max(0,K{row}-500000)*0.33)
-            const tax = Math.max(0, capitalGain - 500000) * 0.33; // 20% federal + 13% California
-            
-            // Column M: Buy Value (Excel formula: =J{row}-E{row}-L{row})
-            // Use end-of-year loan balance (after making payments) for Buy Value calculation
+            const sellingPrice = homeValue * (1 - inputs.closingCostRate / 100); // Column J: Selling price (Excel formula: =I{row}*0.97)
+
+            // Capital Gains
+            const capitalGain = Math.max(0, sellingPrice - inputs.homePrice);
+            const taxableGain = Math.max(0, capitalGain - CAPITAL_GAINS_EXCLUSION);
+            const tax = taxableGain * TAX_RATE;
+
             const endOfYearLoan = Math.max(0, loan + interest - yearlyPayment);
             const buyValue = sellingPrice - endOfYearLoan - tax;
-            
-            // Column N: Buy (Real) (Excel formula: =M{row}/(1+$B$22)^D{row})
             const buyReal = buyValue / Math.pow(1 + inputs.inflation / 100, year);
-            
-            // Column P: Start year balance (Excel formula: =T{row-1})
+
+            // Tax Savings (Year N)
+            // Note: Use beginning-of-year loan balance for interest calculation ratio? 
+            // TCJA limit applies to the debt itself. If loan < 750k, all interest deductible.
+            // If loan > 750k, ratio is 750k / loan.
+            // Using 'loan' (which is beginning of year balance) is correct.
+            let deductibleInterest = 0;
+            if (loan > 0) {
+                deductibleInterest = interest * Math.min(1, MID_LOAN_LIMIT / loan);
+            }
+
+            let totalItemized = deductibleInterest + SALT_CAP;
+            let incrementalDeduction = Math.max(0, totalItemized - STANDARD_DEDUCTION);
+            let taxSavings = incrementalDeduction * TAX_RATE;
+
             const rentStartBalance = previousYearEndBalance;
-            
-            // Column Q: Return (Excel formula: =(P{row})*$B$21)
             const rentReturn = rentStartBalance * (inputs.stockReturn / 100);
-            
-            // Column R: Rent Expense (Excel formula: =R{row-1}*(1+$B$17))
             const rentExpense = previousRentExpense * (1 + inputs.rentIncrease / 100);
-            
-            // Column S: New Investments (Excel formula: =IF(E{row}>0,-$C$12,0)-R{row}+H{row})
-            // Note: C12 is negative in Excel, so -$C$12 becomes positive
-            const newInvestment = (loan > 0 ? yearlyPayment : 0) - rentExpense + taxMaintenance;
-            
-            // Column T: Year end balance (Excel formula: =P{row}+Q{row}+S{row})
+
+            // New Investment
+            let buyerAnnualCost = (loan > 0 ? yearlyPayment : 0) + taxMaintenance - taxSavings;
+            const newInvestment = buyerAnnualCost - rentExpense;
+
             const yearEndBalance = rentStartBalance + rentReturn + newInvestment;
-            
-            // Column U: Total Invested (Excel formula: =$P$3+sum($S$3:S{row}))
             const totalInvested = previousTotalInvested + newInvestment;
-            
-            // Column V: Tax (Excel formula: =(T{row}-U{row})*0.368)
-            const rentTax = (yearEndBalance - totalInvested) * 0.368; // 20% federal + 13% California + 3.8% NIIT
-            
-            // Column W: Rent Value (Excel formula: =T{row}-V{row})
+            const rentTax = (yearEndBalance - totalInvested) * TAX_RATE;
             const rentValue = yearEndBalance - rentTax;
-            
-            // Column X: Rent (Real) (Excel formula: =W{row}/(1+$B$22)^D{row})
             const rentReal = rentValue / Math.pow(1 + inputs.inflation / 100, year);
-            
-            // Column Z: Premium (Excel formula: =X{row}-N{row})
             const premium = rentReal - buyReal;
 
             // Store results
@@ -198,7 +204,7 @@ class RentBuyCalculator {
             results.rentReals.push(rentReal);
             results.premiums.push(premium);
 
-            // Update previous values for next iteration
+            // Update previous values
             previousLoan = loan;
             previousInterest = interest;
             previousTaxableValue = taxableValue;
@@ -225,15 +231,15 @@ class RentBuyCalculator {
 
     calculateLoanAmount(inputs, year) {
         if (year === 0) return inputs.homePrice - inputs.downPayment;
-        
+
         const monthlyRate = inputs.mortgageRate / 100 / 12;
         const totalPayments = inputs.loanTerm * 12;
         const monthlyPayment = this.calculateMonthlyPayment(inputs);
-        
+
         // Calculate remaining balance after 'year' years of payments
         const remainingPayments = (inputs.loanTerm - year) * 12;
         const remainingBalance = monthlyPayment * (1 - Math.pow(1 + monthlyRate, -remainingPayments)) / monthlyRate;
-        
+
         return remainingBalance;
     }
 
@@ -243,20 +249,20 @@ class RentBuyCalculator {
         const annualRate = inputs.mortgageRate / 100;  // B7
         const years = inputs.loanTerm;                 // B5  
         const loanAmount = inputs.homePrice - inputs.downPayment; // B10
-        
+
         // Excel PMT function calculation
         // PMT(rate, nper, pv, fv, type) where fv=0, type=0
         const monthlyRate = annualRate / 12;
         const totalPayments = years * 12;
-        
+
         // PMT formula: pv * rate * (1 + rate)^nper / ((1 + rate)^nper - 1)
         const pmtAnnual = loanAmount * annualRate * Math.pow(1 + annualRate, years) / (Math.pow(1 + annualRate, years) - 1);
-        
+
         // Excel divides by 12: =-PMT(...)/12
         const monthlyPayment = pmtAnnual / 12;
-        
+
         // Excel PMT calculation complete
-        
+
         return monthlyPayment;
     }
 
