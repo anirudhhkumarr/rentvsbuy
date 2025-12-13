@@ -54,12 +54,22 @@ class RentBuyCalculator {
             premiums: []
         };
 
-        // Constants for Tax Logic (Hardcoded per user request)
-        const TAX_RATE = 0.371; // 20% Fed + 13.3% CA + 3.8% NIIT
-        const CAPITAL_GAINS_EXCLUSION = 500000; // Married Filing Jointly
-        const STANDARD_DEDUCTION = 29200; // 2024 Married Filing Jointly
-        const SALT_CAP = 10000; // State and Local Tax Cap
-        const MID_LOAN_LIMIT = 750000; // TCJA Mortgage Interest Deduction Limit
+        // Constants for Tax Logic
+        const FED_RATE = 0.238; // 20% Capital Gains + 3.8% NIIT
+        const CA_BASE_RATE = 0.123;
+        const CA_MENTAL_HEALTH_TAX = 0.01; // 1% MHSA Tax on income > $1M
+        const CA_RATE = CA_BASE_RATE + CA_MENTAL_HEALTH_TAX; // 13.3% Total CA Rate
+        const TAX_RATE = FED_RATE + CA_RATE; // 37.1% Total Capital Gains Rate
+
+        const CAPITAL_GAINS_EXCLUSION = 500000;
+        const MID_LOAN_LIMIT = 750000; // Legacy reference if needed
+
+        // Mortgage Interest Deduction Limits
+        const FED_LOAN_LIMIT = 750000;
+        const CA_LOAN_LIMIT = 1000000;
+        const FED_STD = 29200; // 2024 MFJ
+        const CA_STD = 10726;  // 2024 MFJ
+        const FED_SALT_CAP = 10000;
 
         // Calculate monthly mortgage payment (C12 reference)
         const monthlyPayment = this.calculateMonthlyPayment(inputs);
@@ -84,13 +94,23 @@ class RentBuyCalculator {
         let previousBuyReal = previousBuyValue / Math.pow(1 + inputs.inflation / 100, 1);
 
         // Tax Savings Calculation (Year 1)
-        // Deductible Interest: Pro-rated if loan > $750k
-        let deductibleInterest = previousInterest * Math.min(1, MID_LOAN_LIMIT / (inputs.homePrice - inputs.downPayment));
-        // Itemized Deduction: Deductible Interest + SALT Cap
-        let totalItemized = deductibleInterest + SALT_CAP;
-        // Incremental Deduction: Amount over Standard Deduction
-        let incrementalDeduction = Math.max(0, totalItemized - STANDARD_DEDUCTION);
-        let taxSavings = incrementalDeduction * TAX_RATE;
+        // Updated to split Federal and CA for accurate deduction limits
+        // Using constants defined above
+
+        let fedDeductibleInterest = previousInterest * Math.min(1, FED_LOAN_LIMIT / (inputs.homePrice - inputs.downPayment));
+        let caDeductibleInterest = previousInterest * Math.min(1, CA_LOAN_LIMIT / (inputs.homePrice - inputs.downPayment));
+
+        // Federal Calculation
+        // Federal Itemized = Deductible Mortgage Interest + SALT Cap ($10k)
+        let fedItemized = fedDeductibleInterest + FED_SALT_CAP;
+        let fedSavings = Math.max(0, fedItemized - FED_STD) * FED_RATE;
+
+        // California Calculation
+        // CA Itemized = Deductible Mortgage Interest + Property Tax (no SALT cap)
+        let caItemized = caDeductibleInterest + previousTaxMaintenance;
+        let caSavings = Math.max(0, caItemized - CA_STD) * CA_RATE;
+
+        let taxSavings = fedSavings + caSavings;
 
         // For rent side, start with down payment amount invested
         let previousRentStartBalance = inputs.downPayment;
@@ -153,18 +173,28 @@ class RentBuyCalculator {
             const buyReal = buyValue / Math.pow(1 + inputs.inflation / 100, year);
 
             // Tax Savings (Year N)
-            // Note: Use beginning-of-year loan balance for interest calculation ratio? 
-            // TCJA limit applies to the debt itself. If loan < 750k, all interest deductible.
-            // If loan > 750k, ratio is 750k / loan.
-            // Using 'loan' (which is beginning of year balance) is correct.
-            let deductibleInterest = 0;
+            // Updated to split Federal and CA for accurate deduction limits
+            // Using constants defined above
+
+            let fedDeductibleInterest = 0;
+            let caDeductibleInterest = 0;
+
             if (loan > 0) {
-                deductibleInterest = interest * Math.min(1, MID_LOAN_LIMIT / loan);
+                fedDeductibleInterest = interest * Math.min(1, FED_LOAN_LIMIT / loan);
+                caDeductibleInterest = interest * Math.min(1, CA_LOAN_LIMIT / loan);
             }
 
-            let totalItemized = deductibleInterest + SALT_CAP;
-            let incrementalDeduction = Math.max(0, totalItemized - STANDARD_DEDUCTION);
-            let taxSavings = incrementalDeduction * TAX_RATE;
+            // Federal Calculation
+            // Federal Itemized = Deductible Mortgage Interest + SALT Cap ($10k)
+            let fedItemized = fedDeductibleInterest + FED_SALT_CAP;
+            let fedSavings = Math.max(0, fedItemized - FED_STD) * FED_RATE;
+
+            // California Calculation
+            // CA Itemized = Deductible Mortgage Interest + Property Tax (no SALT cap)
+            let caItemized = caDeductibleInterest + taxMaintenance;
+            let caSavings = Math.max(0, caItemized - CA_STD) * CA_RATE;
+
+            let taxSavings = fedSavings + caSavings;
 
             const rentStartBalance = previousYearEndBalance;
             const rentReturn = rentStartBalance * (inputs.stockReturn / 100);
