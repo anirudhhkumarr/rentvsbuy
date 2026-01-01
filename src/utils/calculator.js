@@ -1,4 +1,4 @@
-class RentBuyCalculator {
+export class RentBuyCalculator {
     constructor() {
         // No DOM initialization - pure calculation class
     }
@@ -62,7 +62,6 @@ class RentBuyCalculator {
         const TAX_RATE = FED_RATE + CA_RATE; // 37.1% Total Capital Gains Rate
 
         const CAPITAL_GAINS_EXCLUSION = 500000;
-        const MID_LOAN_LIMIT = 750000; // Legacy reference if needed
 
         // Mortgage Interest Deduction Limits
         const FED_LOAN_LIMIT = 750000;
@@ -263,7 +262,6 @@ class RentBuyCalculator {
         if (year === 0) return inputs.homePrice - inputs.downPayment;
 
         const monthlyRate = inputs.mortgageRate / 100 / 12;
-        const totalPayments = inputs.loanTerm * 12;
         const monthlyPayment = this.calculateMonthlyPayment(inputs);
 
         // Calculate remaining balance after 'year' years of payments
@@ -282,8 +280,6 @@ class RentBuyCalculator {
 
         // Excel PMT function calculation
         // PMT(rate, nper, pv, fv, type) where fv=0, type=0
-        const monthlyRate = annualRate / 12;
-        const totalPayments = years * 12;
 
         // PMT formula: pv * rate * (1 + rate)^nper / ((1 + rate)^nper - 1)
         const pmtAnnual = loanAmount * annualRate * Math.pow(1 + annualRate, years) / (Math.pow(1 + annualRate, years) - 1);
@@ -296,7 +292,7 @@ class RentBuyCalculator {
         return monthlyPayment;
     }
 
-    calculateMonthlyBuyCost(inputs, year) {
+    calculateMonthlyBuyCost(inputs) {
         const monthlyPayment = this.calculateMonthlyPayment(inputs);
         const monthlyTaxMaintenance = inputs.homePrice * (inputs.taxMaintenanceRate / 100) / 12;
         return monthlyPayment + monthlyTaxMaintenance;
@@ -307,9 +303,4 @@ class RentBuyCalculator {
         const inputs = this.getInputs();
         return this.calculateAll(inputs);
     }
-}
-
-// Export for Node.js testing
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { RentBuyCalculator };
 }
