@@ -12,8 +12,12 @@ const WhatIfView = () => {
         window.RentBuyCalculator = RentBuyCalculator
 
         if (!isInitialized.current) {
-            new WhatIfAnalysis()
-            isInitialized.current = true
+            try {
+                new WhatIfAnalysis()
+                isInitialized.current = true
+            } catch (error) {
+                console.error("Failed to initialize WhatIfAnalysis:", error)
+            }
         }
     }, [])
 

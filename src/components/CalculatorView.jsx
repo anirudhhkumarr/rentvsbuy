@@ -11,8 +11,12 @@ const CalculatorView = ({ isSidebarOpen, setIsSidebarOpen }) => {
         window.RentBuyCalculator = RentBuyCalculator
 
         if (!isInitialized.current) {
-            new RentBuyUI()
-            isInitialized.current = true
+            try {
+                new RentBuyUI()
+                isInitialized.current = true
+            } catch (error) {
+                console.error("Failed to initialize RentBuyUI:", error)
+            }
         }
     }, [])
 
