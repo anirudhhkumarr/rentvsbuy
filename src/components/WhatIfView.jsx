@@ -210,7 +210,7 @@ const WhatIfView = () => {
                             <span>Rent is Better</span>
                         </div>
                     </div>
-                    <div className="chart-container">
+                    <div className="whatif-chart-container">
                         <canvas id="heatmapChart"></canvas>
                     </div>
                 </div>

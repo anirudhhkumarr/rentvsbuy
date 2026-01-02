@@ -3,7 +3,7 @@ import "../assets/css/styles.css"
 import { RentBuyCalculator } from "../utils/calculator.js"
 import { RentBuyUI } from "../utils/script.js"
 
-const CalculatorView = () => {
+const CalculatorView = ({ isSidebarOpen, setIsSidebarOpen }) => {
     const isInitialized = useRef(false)
 
     useEffect(() => {
@@ -24,9 +24,17 @@ const CalculatorView = () => {
             </header>
 
             <div className="main-layout">
-                <div className="sidebar">
+                <div
+                    className={`sidebar-overlay ${isSidebarOpen ? "active" : ""}`}
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+                <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
+                    <div className="drawer-header-mobile">
+                        <h3>Options</h3>
+                        <button className="close-drawer" onClick={() => setIsSidebarOpen(false)}>×</button>
+                    </div>
                     <div className="input-panel primary">
-                        <h3><i className="fas fa-home"></i> Property Details</h3>
+                        <h3><i className="fas fa-home"></i> Buy Option</h3>
                         <div className="form-row">
                             <div className="form-group">
                                 <label htmlFor="homePrice">Home Price</label>
@@ -209,7 +217,7 @@ const CalculatorView = () => {
                                     </div>
                                     <canvas id="costComparisonChart"></canvas>
                                     <div className="year-slider-container">
-                                        <input type="range" id="yearSlider" className="year-slider" min="1" max="40" defaultValue="30" />
+                                        <input type="range" id="yearSlider" className="year-slider" min="1" max="40" defaultValue="10" />
                                     </div>
                                 </div>
                                 <div className="chart-container">

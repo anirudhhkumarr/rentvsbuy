@@ -1,28 +1,24 @@
 import { useState } from "react"
+import { Routes, Route } from "react-router-dom"
 import CalculatorView from "./components/CalculatorView"
 import WhatIfView from "./components/WhatIfView"
+import BottomNav from "./components/BottomNav"
+import "./assets/css/index.css"
 
 function App() {
-    const [view, setView] = useState("calculator")
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen)
+    }
 
     return (
         <div className="app-container">
-            <nav className="main-nav">
-                <button
-                    onClick={() => setView("calculator")}
-                    className={view === "calculator" ? "active" : ""}
-                >
-                    Calculator
-                </button>
-                <button
-                    onClick={() => setView("whatif")}
-                    className={view === "whatif" ? "active" : ""}
-                >
-                    What-If Analysis
-                </button>
-            </nav>
-
-            {view === "calculator" ? <CalculatorView /> : <WhatIfView />}
+            <Routes>
+                <Route path="/" element={<CalculatorView isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />} />
+                <Route path="/whatif" element={<WhatIfView />} />
+            </Routes>
+            <BottomNav toggleSidebar={toggleSidebar} />
         </div>
     )
 }
